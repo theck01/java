@@ -1,0 +1,10 @@
+
+This Java application is a simple drawing program that operates similarly to 
+Microsoft Paint. The user can click and drag within the drawing area to create
+lines and/or whatever shapes that they would desire. Drawings can be made in
+three colors, and there is a clear/erase all button to erase all user drawings
+in the drawing area.
+
+To compile and run execute the following commands:
+javac Main.java
+java Main
