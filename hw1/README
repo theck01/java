@@ -1,10 +1,7 @@
 
-This Java application is a simple drawing program that operates similarly to 
-Microsoft Paint. The user can click and drag within the drawing area to create
-lines and/or whatever shapes that they would desire. Drawings can be made in
-three colors, and there is a clear/erase all button to erase all user drawings
-in the drawing area.
+MS Paint like Java application that creates a canvas and allows user to draw
+lines upon it in 3 different colors. A canvas clear button is included.
 
-To compile and run execute the following commands:
-javac Main.java
-java Main
+Compile with included source files with:
+-	javac Main.java
+-	java Main
