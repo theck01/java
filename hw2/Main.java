@@ -24,7 +24,7 @@ public class Main extends JFrame{
 		THStatePanel state_panel = new THStatePanel();
 		THGameManager game = new THGameManager(state_panel);
 
-		content.add(state_panel, BorderLayout.North);
+		content.add(state_panel, BorderLayout.NORTH);
 		content.add(game, BorderLayout.CENTER);
 
 		setVisible(true);

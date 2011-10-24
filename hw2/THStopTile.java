@@ -1,4 +1,7 @@
 
+import java.awt.*;
+import javax.swing.*;
+
 public class THStopTile extends THTile{
 
 	public THStopTile(int x, int y){
@@ -11,11 +14,11 @@ public class THStopTile extends THTile{
 
 	public void draw(Point location, int size, Graphics g){
 
-		int x = location.getX();
-		int y = location.getY();
+		int x = (int)location.getX();
+		int y = (int)location.getY();
 		int o = size/6;
 		
-		if(observed == 1){
+		if(observed){
 			g.setColor(Color.yellow);
 		}
 		else{

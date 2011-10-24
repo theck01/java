@@ -1,11 +1,6 @@
 
 import java.awt.*;
-import java.awt.event.*;
-import java.awt.geom.*;
-import java.awt.geom.Point2D.*;
 import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
 
 //Contains all common methods for the THTile subclasses
 abstract class THTile{
@@ -14,28 +9,32 @@ abstract class THTile{
 
 	//boolean used to determine if a tile has already been checked for game
 	//should also be used in the draw function to change arrow color
-	int observed;
+	boolean observed;
 
 	public THTile(int x, int y){
 		array_position = new Point(x,y);
-		observed = 0;
+		observed = false;
 		
 	}
 
 	public void setArrayPosition(int new_x, int new_y){
-		this.x = new_x;
-		this.y = new_y;
+		array_position = new Point(new_x, new_y);
 	}
+
+	public void setArrayPosition(Point new_pt){
+		array_position = new_pt;
+	}
+	
 
 	public Point getArrayPosition(){
 		return array_position;
 	}
 
 	public void setObserved(){
-		observed = 1;
+		observed = true;
 	}
 
-	public int isObserved(){
+	public boolean isObserved(){
 		return observed;
 	}
 

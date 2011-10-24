@@ -16,21 +16,32 @@ public class THStatePanel extends JPanel implements ActionListener{
 
 	public THStatePanel(){
 		setLayout(new FlowLayout());
-		time_label = new Label("Time Left -- 00:00");
-		score_label = new Label("Score -- 0");
-		new_game_btn = new JButton("New Game")
-		add(title);
+		time_label = new JLabel("Time Left -- 00:00");
+		score_label = new JLabel("Score -- 0");
+		new_game_btn = new JButton("New Game");
+		add(time_label);
 		add(score_label);
-		new_game_btn.addActionListener(this)
+		add(new_game_btn);
+		new_game_btn.addActionListener(this);
 	}
 
 	public void updateScore(int score){
 		score_label.setText("Score: -- " + Integer.toString(score));
+		repaint();
 		return;
 	}
 
 	public void updateTime(int remaining_time){
-		time_label.setText("Time Left -- " + remaining_time/60 + ":" + remaining_time%60);
+		int minutes = remaining_time/60;
+		int seconds = remaining_time%60;
+		if(seconds < 10){
+			time_label.setText("Time Left -- 0" + minutes + ":0" + seconds);
+		}
+		else{
+			time_label.setText("Time Left -- 0" + minutes + ":" + seconds);
+		}
+		repaint();
+		return;
 	}
 
 	public void setGameManager(THGameManager game){
@@ -38,7 +49,7 @@ public class THStatePanel extends JPanel implements ActionListener{
 	}
 	
 	public void actionPerformed(ActionEvent e){
-		//game.startGame();
-		System.out.println("Would be starting a new game...");
+		game.startGame();
+		System.out.println("Would be starting a new game... but sadly its not ready");
 	}
 }

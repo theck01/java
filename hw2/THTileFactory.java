@@ -1,5 +1,6 @@
 
 import java.lang.Math;
+import java.awt.*;
 
 //class that creates random THTile subclasses to populate the game board
 public class THTileFactory{
@@ -11,8 +12,8 @@ public class THTileFactory{
 		double random_num;
 		random_num = Math.random();
 
-		x = array_pos.getX();
-		y = array_pos.getY();
+		int x = (int)array_pos.getX();
+		int y = (int)array_pos.getY();
 		
 		if(random_num < 0.2){
 			return new THLeftTile(x,y);
