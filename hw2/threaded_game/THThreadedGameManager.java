@@ -3,31 +3,35 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import javax.swing.event.*;
+
+//BUG: Game can resume activity if quickly pause and unpause while user move
+//is being processed
 
 //Controller. Reacts to mouse events, timer events, and modifies the views
 //and models accordingly. Responsible for starting and ending the game
-public class THGameManager extends JComponent implements MouseListener, ActionListener{
+public class THThreadedGameManager extends JComponent implements MouseListener, ActionListener, Runnable{
 
-	THBoard game_board;
-	THStatePanel state_panel;
-	Timer game_timer;
-	boolean game_active;
-	int time_left;
-	int game_score;
+	protected THThreadedBoard game_board;
+	protected THStatePanel state_panel;
+	protected Timer game_timer;
+	protected boolean game_active;
+	protected boolean game_paused;
+	protected int time_left;
+	protected int game_score;
+	protected Point selected_tile_index;
 	
 	//time_count stores the duration of the game in hundredths of a second
-	int time_count;
+	protected int time_count;
 	
 	//small class is only used for data packaging to return all relevant data about
 	//how large a board is and where it is located
-	protected class THBoardSizer{
+	protected class THThreadedBoardSizer{
 
-		int tile_size;
-		Point board_position;
+		private int tile_size;
+		private Point board_position;
 
-		public THBoardSizer(int tile_size, Point board_position){
+		public THThreadedBoardSizer(int tile_size, Point board_position){
 			this.tile_size = tile_size;
 			this.board_position = board_position;
 		}
@@ -40,15 +44,16 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 			return board_position;
 		}
 	}
+	
 
-	public THGameManager(THStatePanel state){
+	public THThreadedGameManager(THStatePanel state){
 		//the new board is just for display. Another will be created upon the
 		//start of a new game
-		game_board = new THBoard(this);
+		game_board = new THThreadedBoard(this);
 		state_panel = state;
-		state.setGameManager(this);
 		game_timer = new Timer(THConstants.timer_interval, this);
 		game_active = false;
+		game_paused = false;
 		time_left = THConstants.game_duration;
 		game_score = 0;
 		addMouseListener(this);
@@ -57,8 +62,8 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 	}
 
 	//function determines the size of a board to draw using the size of the window
-	//available
-	protected THBoardSizer determineBoardAttributes(){
+	//available !!!!!!
+	protected THThreadedBoardSizer determineBoardAttributes(){
 
 		int tile_size;
 		int board_x;
@@ -91,12 +96,12 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 		board_x = (screen_width%(num_columns*tile_size))/2;
 		board_y = (screen_height%(num_rows*tile_size))/2;
 
-		return new THBoardSizer(tile_size, new Point(board_x, board_y));
+		return new THThreadedBoardSizer(tile_size, new Point(board_x, board_y));
 	}
 
 	public void startGame(){
 	
-		game_board = new THBoard(this);
+		game_board = new THThreadedBoard(this);
 
 		game_score = 0;
 		state_panel.updateScore(game_score);
@@ -119,14 +124,22 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 		return;
 	}
 
-	public void timeDelay(int hundredths_seconds){
-		int current_time = time_count;
-		while(current_time < time_count+hundredths_seconds){}
+	public void pause(){
+		game_timer.stop();
+		game_active = false;
+		game_paused = true;
+		return;
+	}
+
+	public void resume(){
+		game_timer.start();
+		game_active = true;
+		game_paused = false;
 		return;
 	}	
 	
 	public void paintComponent(Graphics g){	
-		THBoardSizer attributes = determineBoardAttributes();
+		THThreadedBoardSizer attributes = determineBoardAttributes();
 		game_board.draw(attributes.getPosition(), attributes.getTileSize(), g);
 	}
 
@@ -154,7 +167,8 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 		//while processing occurs
 		game_active = false;
 		
-		THBoardSizer attributes = determineBoardAttributes();
+		
+		THThreadedBoardSizer attributes = determineBoardAttributes();
 		Point array_dim = game_board.getArraySize();
 
 		int tile_size = attributes.getTileSize();
@@ -173,17 +187,28 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 		}
 
 		System.out.println("Click in tile at position: " + tile_index.getX() + " across and " + tile_index.getY() + " down");
+
+		selected_tile_index = tile_index;
 		
-		game_score += game_board.userMove(tile_index);
-		System.out.println("User move processed");
+		//starts new thread that takes care of all processing based upon
+		//the users move while allowing the program to respond to other
+		//events
+		(new Thread(this)).start();
 		
-		state_panel.updateScore(game_score);
+		System.out.println("Thread created, move is being processed...");
 
 		repaint();
 
-		//returns the game to active mode after processing occurs
-		game_active = true;
+		return;
+	}
 
+	public void run(){
+		game_score += game_board.userMove(selected_tile_index);
+		state_panel.updateScore(game_score);
+		if(!game_paused){
+			game_active = true;
+		}
+		System.out.println("Move processed, game is again active");
 		return;
 	}
 

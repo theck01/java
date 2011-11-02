@@ -1,22 +1,17 @@
 
 import java.awt.*;
-import java.awt.event.*;
-import java.awt.geom.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
 
-//Model Controller, manages all game times and game logic
-public class THBoard{
+//Model, manages all game tiles and game logic
+public class THThreadedBoard{
 
 	//later implementations of the game may allow for variably sized game board
 	protected int num_columns, num_rows;
 	protected THTile[][] tile_array;
-	protected THGameManager game;
+	protected THThreadedGameManager game;
 
-	//constructs a new THBoard with default size 10X10 and fills with random
+	//constructs a new THThreadedBoard with default size 10X10 and fills with random
 	//tiles
-	public THBoard(THGameManager game_mngr){
+	public THThreadedBoard(THThreadedGameManager game_mngr){
 
 		num_columns = THConstants.board_width;
 		num_rows = THConstants.board_height;
@@ -131,7 +126,7 @@ public class THBoard{
 
 		for(int i=0; i<num_columns; i++){
 			System.out.println("Replacing column " + i);
-			replaceColumn(tile_array[i][num_rows]);
+			replaceColumn(tile_array[i][num_rows-1]);
 		}
 
 		game.repaint();
@@ -140,7 +135,7 @@ public class THBoard{
 	}
 
 	//function recursively iterates through all tiles in the current move chain
-	//and tabulates the score	
+	//and tabulates the score.
 	protected int markTileChain(THTile current_tile, int current_length){
 
 		current_tile.setObserved();
@@ -148,7 +143,15 @@ public class THBoard{
 		game.repaint();
 
 		System.out.println("Animation delay");
-		game.timeDelay(THConstants.animation_duration);
+		
+		try{
+			Thread.sleep(THConstants.animation_duration);
+		}
+		catch(InterruptedException e){
+			System.out.println("Animation delay interupted, returning");
+			return 0;
+		}
+		
 		System.out.println("Animation delay ended");
 		
 		Point next_position = current_tile.getNextTilePosition();
@@ -183,9 +186,10 @@ public class THBoard{
 	}
 
 	//calls markTileChain() on the point specified by array_position, calls replaceTiles()
-	//after markTileChain returns, and returns the score from that move.
+	//after markTileChain returns, and returns the score from that move. This function is only
+	//called within a special thread created and reserved for user move processing.
 	public int userMove(Point array_position){
-
+		
 		THTile clicked_tile = tile_array[(int)array_position.getX()][(int)array_position.getY()];
 
 		System.out.println("Processing move, beginning to mark the chain of tiles");

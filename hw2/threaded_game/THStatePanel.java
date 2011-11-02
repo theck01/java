@@ -1,28 +1,20 @@
 
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
 
 //Class provides the score panel for the game
 //A panel is used so that other elements could be added to the board
-public class THStatePanel extends JPanel implements ActionListener{
+public class THStatePanel extends JPanel{
 	
 	protected JLabel time_label;
 	protected JLabel score_label;
-	protected JButton new_game_btn;
-	protected THGameManager game;
 
 	public THStatePanel(){
 		setLayout(new FlowLayout());
 		time_label = new JLabel("Time Left -- 00:00");
 		score_label = new JLabel("Score -- 0");
-		new_game_btn = new JButton("New Game");
 		add(time_label);
 		add(score_label);
-		add(new_game_btn);
-		new_game_btn.addActionListener(this);
 	}
 
 	public void updateScore(int score){
@@ -42,14 +34,5 @@ public class THStatePanel extends JPanel implements ActionListener{
 		}
 		repaint();
 		return;
-	}
-
-	public void setGameManager(THGameManager game){
-		this.game = game;
-	}
-	
-	public void actionPerformed(ActionEvent e){
-		game.startGame();
-		System.out.println("Would be starting a new game... but sadly its not ready");
 	}
 }

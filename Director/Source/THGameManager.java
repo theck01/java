@@ -3,29 +3,29 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import javax.swing.event.*;
 
 //Controller. Reacts to mouse events, timer events, and modifies the views
 //and models accordingly. Responsible for starting and ending the game
+
+//!!!!!!!!!!Pause logic, game inactive logic
 public class THGameManager extends JComponent implements MouseListener, ActionListener{
 
-	THBoard game_board;
-	THStatePanel state_panel;
-	Timer game_timer;
-	boolean game_active;
-	int time_left;
-	int game_score;
+	protected THProcessScheduler ps;
+	protected THBoard game_board;
+	protected THStatePanel state_panel;
+	protected boolean process_active;
+	protected boolean game_paused;
+	protected int time_left;
+	protected int game_score;
 	
-	//time_count stores the duration of the game in hundredths of a second
-	int time_count;
 	
 	//small class is only used for data packaging to return all relevant data about
 	//how large a board is and where it is located
 	protected class THBoardSizer{
 
-		int tile_size;
-		Point board_position;
+		private int tile_size;
+		private Point board_position;
 
 		public THBoardSizer(int tile_size, Point board_position){
 			this.tile_size = tile_size;
@@ -40,17 +40,24 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 			return board_position;
 		}
 	}
+	
 
 	public THGameManager(THStatePanel state){
+		
+		ps = new THProcessScheduler();
+		ps.addTimerListener(this);
+		
 		//the new board is just for display. Another will be created upon the
 		//start of a new game
-		game_board = new THBoard(this);
+		game_board = new THBoard(this, ps);
+		
 		state_panel = state;
-		state.setGameManager(this);
-		game_timer = new Timer(THConstants.timer_interval, this);
-		game_active = false;
+		
+		process_active = false;
+		game_paused = true;
 		time_left = THConstants.game_duration;
 		game_score = 0;
+		
 		addMouseListener(this);
 
 		repaint();
@@ -96,16 +103,16 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 
 	public void startGame(){
 	
-		game_board = new THBoard(this);
+		game_board = new THBoard(this, ps);
 
 		game_score = 0;
 		state_panel.updateScore(game_score);
+		
 		time_left = THConstants.game_duration;
 		state_panel.updateTime(time_left);
 
-		game_active = true;
-		time_count = 0;
-		game_timer.start();
+		game_paused = false;
+		ps.start();
 
 		repaint();
 		
@@ -113,29 +120,42 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 	}
 
 	public void endGame(){
-		game_timer.stop();
-		game_active = false;
+		ps.halt();
+		game_paused = true;
 		repaint();
 		return;
 	}
 
-	public void timeDelay(int hundredths_seconds){
-		int current_time = time_count;
-		while(current_time < time_count+hundredths_seconds){}
+	public void pause(){
+		ps.halt();
+		game_paused = true;
 		return;
-	}	
+	}
+
+	public void resume(){
+		ps.start();
+		game_paused = false;
+		return;
+	}
+	
+    public void updateScore(int score){
+        game_score += score;
+        state_panel.updateScore(game_score);
+    }
 	
 	public void paintComponent(Graphics g){	
 		THBoardSizer attributes = determineBoardAttributes();
 		game_board.draw(attributes.getPosition(), attributes.getTileSize(), g);
 	}
 
-	//action comes from timer, occurs every 0.01s
+	//action comes from ps, occurs every 0.001s
 	public void actionPerformed(ActionEvent e){
 	
-		time_count++;
-		time_left = THConstants.game_duration - time_count/100;
+		time_left--;
 		state_panel.updateTime(time_left);
+		
+		process_active = ps.isActive();
+		
 		if(time_left == 0){
 			endGame();	
 		}
@@ -145,14 +165,11 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 
 	public void mouseClicked(MouseEvent e){
 
-		//if the game has not been started, do not process user clicks
-		if(!game_active){
+		//if the game is paused or processing, do not allow
+		//user clicks
+		if(game_paused || process_active){
 			return;
-		}
-
-		//sets game to inactive so that user cannot manipulate board
-		//while processing occurs
-		game_active = false;
+		}		
 		
 		THBoardSizer attributes = determineBoardAttributes();
 		Point array_dim = game_board.getArraySize();
@@ -168,21 +185,14 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 		//if the click was out of array bounds, then do nothing
 		if(tile_index.getX() < 0 || tile_index.getX() >= array_dim.getX()|| tile_index.getY() < 0 || tile_index.getY() >= array_dim.getY()){
 			System.out.println("Click out of board boundary");
-			game_active = true;
 			return;
 		}
 
 		System.out.println("Click in tile at position: " + tile_index.getX() + " across and " + tile_index.getY() + " down");
-		
-		game_score += game_board.userMove(tile_index);
-		System.out.println("User move processed");
-		
-		state_panel.updateScore(game_score);
+
+		game_board.userMove(tile_index);
 
 		repaint();
-
-		//returns the game to active mode after processing occurs
-		game_active = true;
 
 		return;
 	}
@@ -192,3 +202,10 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 	public void mouseExited(MouseEvent e){}
 	public void mouseEntered(MouseEvent e){}
 }
+
+
+
+
+
+
+

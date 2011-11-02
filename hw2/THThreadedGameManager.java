@@ -8,17 +8,20 @@ import javax.swing.event.*;
 
 //Controller. Reacts to mouse events, timer events, and modifies the views
 //and models accordingly. Responsible for starting and ending the game
-public class THGameManager extends JComponent implements MouseListener, ActionListener{
+public class THThreadedGameManager extends JComponent implements MouseListener, ActionListener, Runnable{
 
-	THBoard game_board;
-	THStatePanel state_panel;
-	Timer game_timer;
-	boolean game_active;
-	int time_left;
-	int game_score;
+	protected THBoard game_board;
+	protected THStatePanel state_panel;
+	protected Timer game_timer;
+	protected boolean game_active;
+	protected int time_left;
+	protected Point selected_tile_index;
+
+	//last mouse event stored for use in threading
+	protected MouseEvent e;
 	
 	//time_count stores the duration of the game in hundredths of a second
-	int time_count;
+	protected int time_count;
 	
 	//small class is only used for data packaging to return all relevant data about
 	//how large a board is and where it is located
@@ -41,7 +44,7 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 		}
 	}
 
-	public THGameManager(THStatePanel state){
+	public THThreadedGameManager(THStatePanel state){
 		//the new board is just for display. Another will be created upon the
 		//start of a new game
 		game_board = new THBoard(this);
@@ -154,6 +157,7 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 		//while processing occurs
 		game_active = false;
 		
+		
 		THBoardSizer attributes = determineBoardAttributes();
 		Point array_dim = game_board.getArraySize();
 
@@ -173,17 +177,24 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 		}
 
 		System.out.println("Click in tile at position: " + tile_index.getX() + " across and " + tile_index.getY() + " down");
+
+		//starts new thread that takes care of all processesing that needs
+		//to occur to process the move while hopefully allowing for Timer
+		//pulses to continue to be recieved
+		(new Thread(this)).start();
 		
-		game_score += game_board.userMove(tile_index);
-		System.out.println("User move processed");
-		
-		state_panel.updateScore(game_score);
+		System.out.println("Thread created, move is being processed...");
 
 		repaint();
 
-		//returns the game to active mode after processing occurs
-		game_active = true;
+		return;
+	}
 
+	public void run(){
+		game_score += game_board.userMove(selected_tile_index);
+		state_panel.updateScore(game_score);
+		game_active = true;
+		System.out.println("Move processed, game is again active")
 		return;
 	}
 

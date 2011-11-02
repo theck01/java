@@ -16,6 +16,9 @@ while a move is being processed.
 To compile and run execute the following commands within the terminal:
 	javac Main.java
 	java Main
+
+NOTE: If the user would like to attempt to play the game, uncomment the
+game.startGame(); line in the actionPerformed
 	
 
 DESIGN FOR HW2 GAME

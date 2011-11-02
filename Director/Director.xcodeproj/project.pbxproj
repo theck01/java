@@ -1,0 +1,120 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXFileReference section */
+		3A088DDE145F434000078AA5 /* Main.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = Main.java; path = Source/Main.java; sourceTree = "<group>"; };
+		3A088DDF145F434000078AA5 /* THBoard.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THBoard.java; path = Source/THBoard.java; sourceTree = "<group>"; };
+		3A088DE0145F434000078AA5 /* THGameManager.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THGameManager.java; path = Source/THGameManager.java; sourceTree = "<group>"; };
+		3A088DE1145F434000078AA5 /* THProcess.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THProcess.java; path = Source/THProcess.java; sourceTree = "<group>"; };
+		3A088DE2145F434000078AA5 /* THProcessScheduler.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THProcessScheduler.java; path = Source/THProcessScheduler.java; sourceTree = "<group>"; };
+		3A088DE5145F436100078AA5 /* THConstants.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THConstants.java; path = Source/THConstants.java; sourceTree = "<group>"; };
+		3A088DE6145F436100078AA5 /* THDownTile.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THDownTile.java; path = Source/THDownTile.java; sourceTree = "<group>"; };
+		3A088DE7145F436100078AA5 /* THLeftTile.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THLeftTile.java; path = Source/THLeftTile.java; sourceTree = "<group>"; };
+		3A088DE8145F436100078AA5 /* THRightTile.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THRightTile.java; path = Source/THRightTile.java; sourceTree = "<group>"; };
+		3A088DE9145F436100078AA5 /* THStatePanel.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THStatePanel.java; path = Source/THStatePanel.java; sourceTree = "<group>"; };
+		3A088DEA145F436100078AA5 /* THStopTile.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THStopTile.java; path = Source/THStopTile.java; sourceTree = "<group>"; };
+		3A088DEB145F436100078AA5 /* THTile.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THTile.java; path = Source/THTile.java; sourceTree = "<group>"; };
+		3A088DEC145F436100078AA5 /* THTileFactory.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THTileFactory.java; path = Source/THTileFactory.java; sourceTree = "<group>"; };
+		3A088DED145F436100078AA5 /* THUpTile.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THUpTile.java; path = Source/THUpTile.java; sourceTree = "<group>"; };
+		3A088DEE145F453700078AA5 /* THControlPanel.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THControlPanel.java; path = Source/THControlPanel.java; sourceTree = "<group>"; };
+		3AB518191461D3DC00129558 /* THReplaceTiles.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THReplaceTiles.java; path = Source/THReplaceTiles.java; sourceTree = "<group>"; };
+		3AB87FD4146081ED004EC224 /* THMarkChain.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THMarkChain.java; path = Source/THMarkChain.java; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		3A088DD5145F432F00078AA5 = {
+			isa = PBXGroup;
+			children = (
+				3A088DDE145F434000078AA5 /* Main.java */,
+				3A088DEE145F453700078AA5 /* THControlPanel.java */,
+				3A088DE9145F436100078AA5 /* THStatePanel.java */,
+				3A088DE0145F434000078AA5 /* THGameManager.java */,
+				3A088DE2145F434000078AA5 /* THProcessScheduler.java */,
+				3A088DDF145F434000078AA5 /* THBoard.java */,
+				3A088DEC145F436100078AA5 /* THTileFactory.java */,
+				3A088DE5145F436100078AA5 /* THConstants.java */,
+				3A088DF0145F45E200078AA5 /* THProcess and Subclasses */,
+				3A088DEF145F455D00078AA5 /* THTile and Subclasses */,
+			);
+			sourceTree = "<group>";
+		};
+		3A088DEF145F455D00078AA5 /* THTile and Subclasses */ = {
+			isa = PBXGroup;
+			children = (
+				3A088DEB145F436100078AA5 /* THTile.java */,
+				3A088DE7145F436100078AA5 /* THLeftTile.java */,
+				3A088DE8145F436100078AA5 /* THRightTile.java */,
+				3A088DED145F436100078AA5 /* THUpTile.java */,
+				3A088DE6145F436100078AA5 /* THDownTile.java */,
+				3A088DEA145F436100078AA5 /* THStopTile.java */,
+			);
+			name = "THTile and Subclasses";
+			sourceTree = "<group>";
+		};
+		3A088DF0145F45E200078AA5 /* THProcess and Subclasses */ = {
+			isa = PBXGroup;
+			children = (
+				3A088DE1145F434000078AA5 /* THProcess.java */,
+				3AB87FD4146081ED004EC224 /* THMarkChain.java */,
+				3AB518191461D3DC00129558 /* THReplaceTiles.java */,
+			);
+			name = "THProcess and Subclasses";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXProject section */
+		3A088DD7145F432F00078AA5 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				ORGANIZATIONNAME = "Tufts University";
+			};
+			buildConfigurationList = 3A088DDA145F432F00078AA5 /* Build configuration list for PBXProject "Director" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 3A088DD5145F432F00078AA5;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		3A088DDC145F432F00078AA5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		3A088DDD145F432F00078AA5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3A088DDA145F432F00078AA5 /* Build configuration list for PBXProject "Director" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3A088DDC145F432F00078AA5 /* Debug */,
+				3A088DDD145F432F00078AA5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3A088DD7145F432F00078AA5 /* Project object */;
+}

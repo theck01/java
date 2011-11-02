@@ -1,6 +1,5 @@
 
 import java.awt.*;
-import javax.swing.*;
 
 //Contains all common methods for the THTile subclasses
 abstract class THTile{
