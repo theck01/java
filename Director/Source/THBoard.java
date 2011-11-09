@@ -12,6 +12,8 @@ public class THBoard{
     protected THProcessScheduler ps;
 	protected THGameManager game;
     protected THTile active_tile;
+	
+	boolean invalid_move;
 
 	//constructs a new THBoard with default size 10X10 and fills with random
 	//tiles
@@ -30,6 +32,8 @@ public class THBoard{
 		this.ps = ps;
 		game = game_mngr;
         active_tile = null;
+		
+		invalid_move = false;
 	}
 
 	//function switches the positions of tile1 and tile2 in the array and changes
@@ -143,9 +147,55 @@ public class THBoard{
 		
 		return;
 	}
+	
+	//checks that a valid chain of tiles is created from the user move,
+	//ie that the chain is 3 or more tiles long
+	protected boolean validChain(THTile current_tile, int current_length){
+	
+		//if chain is already long enough, return true
+		if(current_length >= THConstants.min_chain_length){
+				return true;
+		}
+		
+		current_tile.setObserved();
+		
+		Point next_position = current_tile.getNextTilePosition();
+		
+		//if the current tile is a stop tile, return false, chain cannot
+		//be long enough
+		if(next_position == null){
+				current_tile.clearObserved();
+				return false;
+		}
+		
+		int x = (int)next_position.getX();
+		int y = (int)next_position.getY();
+		
+		//if the next tile is within the bounds of the board
+		if(x<num_columns && x >=0 && y<num_rows && y>=0){
+			
+			//and the next tile has already been observed then
+			//return false, chain cannot be long enough
+			if(tile_array[x][y].isObserved()){
+				current_tile.clearObserved();
+				return false;
+			}
+			
+			//else continue checking if the chain is valid
+			boolean result = validChain(tile_array[x][y], current_length+1);
+			current_tile.clearObserved();
+			return result;
+		}
+		
+		//else the tile points to a location off the board and returns if chain
+		//is long enough
+		current_tile.clearObserved();
+		return false;
+	}
 
 	//function recursively iterates through all tiles in the current move chain
 	//and tabulates the score
+	//THBoardMarkChain is a THProcess that executes the method
 	protected void markChain(Vector<THTile> active_tiles, int current_length){
 
 		Vector<THTile> next_vector = new Vector<THTile>();
@@ -195,22 +245,22 @@ public class THBoard{
         }
         
         if(next_vector.size() == 0){
-			ps.add(new THReplaceTiles(this), 0);
+			ps.add(new THBoardReplaceTiles(this), 0);
         }
         else{
-            ps.add(new THMarkChain(this, next_vector, current_length+1), THConstants.move_delay);
+            ps.add(new THBoardMarkChain(this, next_vector, current_length+1), THConstants.move_delay);
         }
         
         game.repaint();
 	}
 
-	//calls markTileChain() on the point specified by array_position, calls replaceTiles()
-	//after markTileChain returns, and returns the score from that move.
-    //!!!!!!!! loads initial markTile chain Process
+	//sets the active tile, swaps or deselects if an active tile already set
+	//and generates intial THMarkChain process if the move is valid.
 	public void userMove(Point array_position){
 
 		THTile clicked_tile = tile_array[(int)array_position.getX()][(int)array_position.getY()];
         
+		//if no tile is active, set as active_tile
         if(active_tile == null){
             active_tile = clicked_tile;
         }
@@ -219,19 +269,44 @@ public class THBoard{
         }
         else{
             
-            System.out.println("Processing move, beginning to mark the chain of tiles");
+            System.out.println("Processing move, checking the chain of tiles");
             
             tileSwap(active_tile, clicked_tile);
+			
+			//if the move is not valid swap the tiles back and delay with error indication
+			if(!validChain(active_tile, 1) || !validChain(clicked_tile, 1)){
+				System.out.println("Invalid move");
+				tileSwap(active_tile, clicked_tile);
+				ps.add(new THBoardInvalidMove(this), THConstants.move_delay);
+				game.repaint();
+				return;
+			}
             
+			//else process the valid user move
+			System.out.println("Valid move");
+			game.incNumMoves();
+			
             Vector<THTile> seed_tiles = new Vector<THTile>();
             seed_tiles.add(active_tile);
             seed_tiles.add(clicked_tile);
             
-            ps.add(new THMarkChain(this, seed_tiles, 1), THConstants.move_delay);
+            ps.add(new THBoardMarkChain(this, seed_tiles, 1), THConstants.invalid_delay);
 			
 			active_tile = null;
         }
 		
+		game.repaint();
+	}
+	
+	public void invalidMove(){
+		invalid_move = true;
+		ps.add(new THBoardRevalidate(this), 0);
+		game.repaint();
+	}
+	
+	public void revalidate(){
+		invalid_move = false;
+		active_tile = null;
 		game.repaint();
 	}
 
@@ -245,21 +320,36 @@ public class THBoard{
 		int x = (int)board_pos.getX();
 		int y = (int)board_pos.getY();		
 
-		//draws white board background
-		g.setColor(Color.white);
+		//draws the background
+		if(game.isActive()){
+			g.setColor(Color.white);
+		}
+		else{
+			g.setColor(Color.lightGray);
+			active_tile = null;
+		}
+		
 		g.fillRect(x, y, num_columns*tile_size, num_rows*tile_size);
         
 		//highlights the currently selected tile, if one is specified
 		if(active_tile != null){
 			int off_x = (int)active_tile.getArrayPosition().getX();
 			int off_y = (int)active_tile.getArrayPosition().getY();
-			g.setColor(Color.gray);
+			
+			if(invalid_move){
+				g.setColor(Color.red);
+			}
+			else{
+				g.setColor(Color.gray);				
+			}
+				
 			g.fillRect(x + off_x*tile_size, y + off_y*tile_size, tile_size, tile_size);
 		}
 
 		g.setColor(Color.black);
 
-		//for loops draw grid for tiles and instructs each THTile to draw itself
+		//for loops draw grid for tiles and if the game is active 
+		//instructs each THTile to draw itself
 		for(int i=0; i<num_columns; i++){
 			for(int j=0; j<num_rows; j++){
 			
@@ -268,7 +358,9 @@ public class THBoard{
 					g.drawLine(x, y+j*tile_size, x+num_columns*tile_size, y+j*tile_size);
 				}
 				
-				tile_array[i][j].draw(new Point(x+i*tile_size, y+j*tile_size), tile_size, g);	
+				if(!game.hideBoard()){
+					tile_array[i][j].draw(new Point(x+i*tile_size, y+j*tile_size), tile_size, g);
+				}
 			}
 
 			draw = false;

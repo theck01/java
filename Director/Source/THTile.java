@@ -33,6 +33,10 @@ abstract class THTile{
 	public void setObserved(){
 		observed = true;
 	}
+	
+	public void clearObserved(){
+		observed = false;
+	}
 
 	public boolean isObserved(){
 		return observed;

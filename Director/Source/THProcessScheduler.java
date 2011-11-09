@@ -7,7 +7,6 @@ import javax.swing.*;
 public class THProcessScheduler implements ActionListener{
 	
 	protected Timer process_timer;
-    protected int interval;
 	protected ArrayDeque<THProcess> process_queue;
 	protected ArrayDeque<Integer> delay_queue;
     protected int delay;
@@ -22,7 +21,6 @@ public class THProcessScheduler implements ActionListener{
 
 	public THProcessScheduler(Timer external_timer){
 		process_timer = external_timer;
-        interval = process_timer.getDelay();
 		process_queue = new ArrayDeque<THProcess>();
 		delay_queue = new ArrayDeque<Integer>();
         delay = 0;

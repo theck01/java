@@ -15,16 +15,16 @@ public class THTileFactory{
 		int x = (int)array_pos.getX();
 		int y = (int)array_pos.getY();
 		
-		if(random_num < 0.2){
+		if(random_num < 0.22){
 			return new THLeftTile(x,y);
 		}
-		else if(random_num < 0.4){
+		else if(random_num < 0.44){
 			return new THRightTile(x,y);
 		}
-		else if(random_num < 0.6){
+		else if(random_num < 0.66){
 			return new THUpTile(x,y);
 		}
-		else if(random_num < 0.8){
+		else if(random_num < 0.88){
 			return new THDownTile(x,y);
 		}
 		else{

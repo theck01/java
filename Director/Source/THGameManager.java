@@ -7,17 +7,21 @@ import javax.swing.event.*;
 
 //Controller. Reacts to mouse events, timer events, and modifies the views
 //and models accordingly. Responsible for starting and ending the game
-
-//!!!!!!!!!!Pause logic, game inactive logic
 public class THGameManager extends JComponent implements MouseListener, ActionListener{
 
 	protected THProcessScheduler ps;
 	protected THBoard game_board;
 	protected THStatePanel state_panel;
+	protected THControlPanel control_panel;
+	
+	protected boolean game_active;
 	protected boolean process_active;
 	protected boolean game_paused;
+	protected boolean hide_board;
+	
 	protected int time_left;
 	protected int game_score;
+	protected int num_moves;
 	
 	
 	//small class is only used for data packaging to return all relevant data about
@@ -49,18 +53,32 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 		
 		//the new board is just for display. Another will be created upon the
 		//start of a new game
-		game_board = new THBoard(this, ps);
+		newBoard();
 		
 		state_panel = state;
 		
 		process_active = false;
 		game_paused = true;
+		game_active = false;
+		hide_board = true;
+		
 		time_left = THConstants.game_duration;
 		game_score = 0;
+		num_moves = 0;
 		
 		addMouseListener(this);
 
 		repaint();
+	}
+	
+	public void setControlPanel(THControlPanel controls){
+		control_panel = controls;
+		if(isActive()){
+			controls.gameActiveControls();
+		}
+		else{
+			controls.gameInactiveControls();
+		}
 	}
 
 	//function determines the size of a board to draw using the size of the window
@@ -100,18 +118,30 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 
 		return new THBoardSizer(tile_size, new Point(board_x, board_y));
 	}
+	
+	public void newBoard(){
+		game_board = new THBoard(this, ps);
+		hide_board = true;
+		repaint();
+	}
 
 	public void startGame(){
 	
-		game_board = new THBoard(this, ps);
+		newBoard();
 
 		game_score = 0;
-		state_panel.updateScore(game_score);
-		
+		num_moves = 0;
 		time_left = THConstants.game_duration;
+		state_panel.updateScore(game_score);
+		state_panel.updateMoves(num_moves);
 		state_panel.updateTime(time_left);
 
 		game_paused = false;
+		game_active = true;
+		hide_board = false;
+
+		control_panel.gameActiveControls();
+		
 		ps.start();
 
 		repaint();
@@ -120,28 +150,51 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 	}
 
 	public void endGame(){
+	
 		ps.halt();
+		
+		control_panel.gameInactiveControls();
+		
 		game_paused = true;
+		game_active = false;
+		
 		repaint();
+		
 		return;
 	}
 
 	public void pause(){
 		ps.halt();
 		game_paused = true;
+		repaint();
 		return;
 	}
 
 	public void resume(){
 		ps.start();
 		game_paused = false;
+		repaint();
 		return;
+	}
+	
+	//returns true is the game is currently playable
+	public boolean isActive(){
+		return (game_active && !game_paused);
+	}
+	
+	public boolean hideBoard(){
+		return hide_board;	
 	}
 	
     public void updateScore(int score){
         game_score += score;
         state_panel.updateScore(game_score);
     }
+	
+	public void incNumMoves(){
+		num_moves++;
+		state_panel.updateMoves(num_moves);
+	}
 	
 	public void paintComponent(Graphics g){	
 		THBoardSizer attributes = determineBoardAttributes();
@@ -157,7 +210,8 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 		process_active = ps.isActive();
 		
 		if(time_left == 0){
-			endGame();	
+			ps.add(new THGameManagerEndGame(this), 0);
+			
 		}
 		
 		return;
