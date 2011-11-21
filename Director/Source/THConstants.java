@@ -4,6 +4,8 @@ public class THConstants{
     //all time units are in milliseconds
     static public int move_delay = 250;
 	static public int invalid_delay = 150;
+	static public int shrink_delay = 5;
+	static public int animation_delay = 10;
 	
 	//Board size constants. May be altered in game
 	static public int board_width = 7;	//array sizing
@@ -23,6 +25,17 @@ public class THConstants{
 	
 	static public int game_duration = 60000; //1 min
 	static public int timer_interval = 1; //1 ms
+
+	//animation sizes
+	static public int min_tile_size = 6; //in pixels
+	static public int animation_distance = 3; //pixels to move per 0.01 seconds
+	
+	//tile id codes
+	static final public int left_id = 0;
+	static final public int right_id = 1;
+	static final public int up_id = 2;
+	static final public int down_id = 3;
+	static final public int stop_id = 4;
 
 	private THConstants(){}
 	

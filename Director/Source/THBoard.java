@@ -5,35 +5,118 @@ import java.util.*;
 //Model Controller, manages all game times and game logic
 public class THBoard{
 
+	protected Point origin;
+	protected int tile_size;
+	
 	//later implementations of the game will allow for variably sized game board
 	protected int num_columns, num_rows;
 	protected THTile[][] tile_array;
     
     protected THProcessScheduler ps;
 	protected THGameManager game;
+	protected THInfoPanel info;
     protected THTile active_tile;
 	
 	boolean invalid_move;
 
 	//constructs a new THBoard with default size 10X10 and fills with random
 	//tiles
-	public THBoard(THGameManager game_mngr, THProcessScheduler ps){
+	public THBoard(THGameManager game_mngr, THProcessScheduler ps, Point origin, int tile_size, THInfoPanel info){
 
+		this.info = info;
+		this.origin = origin;
+		this.tile_size = tile_size;
+		
+		int x = (int)origin.getX();
+		int y = (int)origin.getY();
+		
 		num_columns = THConstants.board_width;
 		num_rows = THConstants.board_height;
 		tile_array = new THTile[num_columns][num_rows];
 
+		Point location = new Point(0,0);
+
 		for(int i=0; i<num_columns; i++){
 			for(int j=0; j<num_rows; j++){
-				tile_array[i][j] = THTileFactory.createRandomTile(new Point(i,j));
+				location.setLocation(x+i*tile_size, y+j*tile_size);
+				tile_array[i][j] = THTileFactory.createRandomTile(new Point(i,j), new Point(location), new Point(location), tile_size);
 			}
 		}
 		
 		this.ps = ps;
 		game = game_mngr;
-        active_tile = null;
+        deselect();
 		
 		invalid_move = false;
+	}
+	
+	public void size(Point new_origin, int new_tile_size){
+		
+		if(new_tile_size == tile_size && new_origin.equals(origin)){
+			return;
+		}
+		
+		tile_size = new_tile_size;
+		origin.setLocation(new_origin);
+		
+		int x = (int)origin.getX();
+		int y = (int)origin.getY();
+		
+		for(int i=0; i<num_columns; i++){
+			for(int j=0; j<num_rows; j++){
+				tile_array[i][j].setTileSize(tile_size);
+				tile_array[i][j].setActualSize(tile_size);
+				tile_array[i][j].setActualPosition(new Point(x+i*tile_size, y+j*tile_size));
+				tile_array[i][j].setTargetPosition(new Point(x+i*tile_size, y+j*tile_size));
+			}
+		}
+		
+	}
+	
+	public void deselect(){
+		active_tile = null;
+		info.noneSelected();
+		game.repaint();
+	}
+	
+	public void select(THTile tile){
+		active_tile = tile;
+		info.tileSelected(tile);
+	}
+	
+	public void replaceTile(THTile t, int tile_id){
+		
+		int x = (int)t.getArrayPosition().getX();
+		int y = (int)t.getArrayPosition().getY();
+		
+		Point i = active_tile.getArrayPosition();
+		Point a = active_tile.getActualPosition();
+		Point tp = active_tile.getTargetPosition();
+		int s = active_tile.getTileSize();
+		int as = active_tile.getActualSize();
+		
+		switch(tile_id){
+			case THConstants.left_id:
+				tile_array[x][y] = new THLeftTile(i,a,tp,s);
+				break;
+			case THConstants.right_id:
+				tile_array[x][y] = new THRightTile(i,a,tp,s);
+				break;
+			case THConstants.up_id:
+				tile_array[x][y] = new THUpTile(i,a,tp,s);
+				break;
+			case THConstants.down_id:
+				tile_array[x][y] = new THDownTile(i,a,tp,s);
+				break;
+			default:
+				tile_array[x][y] = new THStopTile(i,a,tp,s);
+				break;
+		}		
+		tile_array[x][y].setActualSize(as);
+		
+		select(tile_array[x][y]);
+		
+		game.repaint();
 	}
 
 	//function switches the positions of tile1 and tile2 in the array and changes
@@ -41,96 +124,115 @@ public class THBoard{
 	protected void tileSwap(THTile tile1, THTile tile2){
 	
 		Point pos1 = tile1.getArrayPosition();
+		int x1 = (int)pos1.getX();
+		int y1 = (int)pos1.getY();
+		
+		Point target1 = tile1.getTargetPosition();
+		Point actual1 = tile1.getActualPosition();
+		
 		Point pos2 = tile2.getArrayPosition();
-
+		int x2 = (int)pos2.getX();
+		int y2 = (int)pos2.getY();
+		
+		Point target2 = tile2.getTargetPosition();
+		Point actual2 = tile2.getActualPosition();
+		
 		tile1.setArrayPosition(pos2);
+		tile1.setTargetPosition(target2);
+		tile1.setActualPosition(actual2);
+		
 		tile2.setArrayPosition(pos1);
-
-		//buffer variable prevents data loss as tiles are switched in specific
-		//cases, such as when values are passed directly from array
-		THTile buffer = tile1;
-		tile_array[(int)pos1.getX()][(int)pos1.getY()] = tile2;
-		tile_array[(int)pos2.getX()][(int)pos2.getY()] = buffer;
-        
+		tile2.setTargetPosition(target1);
+		tile2.setActualPosition(actual1);
+		
+		tile_array[x1][y1] = tile2;
+		tile_array[x2][y2] = tile1;
+		
         game.repaint();
 
 		return;
 	}
 
-    //Will become a THProcess in future program designs
-	protected void replaceColumn(THTile current_tile){
+    //recursively replaces tiles, modifies target locations of affected tiles, and creates new tiles
+	protected void replaceColumn(THTile current_tile, int new_tiles){
 
-		THTile next;
-		Point next_position;
+		Point target = new Point();
+		Point actual = new Point();
 
 		Point position = current_tile.getArrayPosition();
 		int x = (int)position.getX(); //the column being replaced
+		int y = (int)position.getY();
 
-		//if the current tile is not at the top of the board, get the tile
-		//immediately above it
-		if(position.getY()>0){
-			next = tile_array[x][(int)position.getY()-1];
-			next_position = next.getArrayPosition();
-		}
-		//else if the tile is at the top and needs to be replaced, replace it
-		else if(current_tile.isObserved()){
-			int y = (int)position.getY();
-			tile_array[x][y] = THTileFactory.createRandomTile(new Point(x,y));
-            return;
-		}
-		//else if the tile is at the top and does not need replacement, return
-		else{
-			return;
-		}
-
-		//if the current tile needs replacement, find the next tile to replace
-		//it. current tile is not at the top of the board
-		if(current_tile.isObserved()){
-
-			//while loop searches for next unobserved tile within array bounds
-			//that is located above the current tile			
-			while(next_position.getY()>0 && next.isObserved()){
-				next = tile_array[x][(int)next_position.getY()-1];
-				next_position = next.getArrayPosition();
+		if(y == 0){
+			if(current_tile.isObserved()){
+			
+				target.setLocation((int)origin.getX()+x*tile_size, (int)origin.getY());
+				actual.setLocation((int)origin.getX()+x*tile_size, (0-(new_tiles+1)*tile_size));
+				new_tiles++;
+				
+				tile_array[x][0] = THTileFactory.createRandomTile(new Point(x,y), new Point(actual), new Point(target), tile_size);
 			}
-
-			//if the next tile is at the top boundry of the board
-			if(next_position.getY() == 0){
-
-				//then replace all intermediate tiles if the next tile is observed
-				if(next.isObserved()){
-				
-					for(int i=(int)position.getY(); i>=0; i--){
-						tile_array[x][i] = THTileFactory.createRandomTile(new Point(x,i));
-					}
-
-					return;
+		}
+		else{
+		
+			THTile next = tile_array[x][y-1];
+			
+			if(current_tile.isObserved()){
+				//drop all tiles above down by 1
+				for(int i=y; i>0; i--){
+					tile_array[x][i] = tile_array[x][i-1];
+					tile_array[x][i].dropDown();
 				}
-				//else swap the unobserved top tile with the current tile, and replace
-				//all tiles above current
-				else{
 				
-					tileSwap(current_tile, next);
-					for(int i=(int)position.getY()-1; i>=0; i--){
-						tile_array[x][i] = THTileFactory.createRandomTile(new Point(x,i));
-					}
-
-					return;
+				//add new tile at the top
+				target.setLocation((int)origin.getX()+x*tile_size, (int)origin.getY());
+				actual.setLocation((int)origin.getX()+x*tile_size, (0-(new_tiles+1)*tile_size));
+				new_tiles++;
+				tile_array[x][0] = THTileFactory.createRandomTile(new Point(x,0), new Point(actual), new Point(target), tile_size);
+			}
+			
+			replaceColumn(next, new_tiles);
+		}
+	}
+	
+	
+	protected void shrinkObserved(){
+		
+		boolean stop = true;
+		for(int i=0; i<num_columns; i++){
+			for(int j=0; j<num_rows; j++){
+				if(!tile_array[i][j].shrink()){
+					stop = false;
 				}
 			}
-			//else swap next with current and call replaceColumn on the tile above current_tile
-			else{
-				tileSwap(current_tile, next);
-				replaceColumn(tile_array[x][(int)position.getY()-1]);
-				return;
+		}
+		
+		if(stop){
+			ps.add(new THBoardReplaceTiles(this),0);
+		}
+		else{
+			ps.add(new THBoardShrinkObserved(this), THConstants.shrink_delay);
+		}
+		
+		game.repaint();
+	}
+	
+	protected void animate(){
+	
+		boolean stop = true;
+		for(int i=0; i<num_columns; i++){
+			for(int j=0; j<num_rows; j++){
+				if(!tile_array[i][j].animate()){
+					stop = false;
+				}
 			}
 		}
-		//if the current_tile does not need replacement, execute funtion on
-		//the tile above
-		else{
-			replaceColumn(next);
-			return;
+		
+		if(!stop){
+			ps.add(new THBoardAnimate(this), THConstants.animation_delay);
 		}
+		
+		game.repaint();
 	}
 
 	//function checks each column for tiles to replace, and does so if required
@@ -140,9 +242,10 @@ public class THBoard{
 
 		for(int i=0; i<num_columns; i++){
 			System.out.println("Replacing column " + i);
-			replaceColumn(tile_array[i][num_rows-1]);
+			replaceColumn(tile_array[i][num_rows-1], 0);
 		}
 
+		ps.add(new THBoardAnimate(this),THConstants.animation_delay);
 		game.repaint();
 		
 		return;
@@ -157,14 +260,14 @@ public class THBoard{
 				return true;
 		}
 		
-		current_tile.setObserved();
+		current_tile.setObserved(true);
 		
 		Point next_position = current_tile.getNextTilePosition();
 		
 		//if the current tile is a stop tile, return false, chain cannot
 		//be long enough
 		if(next_position == null){
-				current_tile.clearObserved();
+				current_tile.setObserved(false);
 				return false;
 		}
 		
@@ -177,19 +280,19 @@ public class THBoard{
 			//and the next tile has already been observed then
 			//return false, chain cannot be long enough
 			if(tile_array[x][y].isObserved()){
-				current_tile.clearObserved();
+				current_tile.setObserved(false);
 				return false;
 			}
 			
 			//else continue checking if the chain is valid
 			boolean result = validChain(tile_array[x][y], current_length+1);
-			current_tile.clearObserved();
+			current_tile.setObserved(false);
 			return result;
 		}
 		
 		//else the tile points to a location off the board and returns if chain
 		//is long enough
-		current_tile.clearObserved();
+		current_tile.setObserved(false);
 		return false;
 	}
 
@@ -205,7 +308,7 @@ public class THBoard{
             THTile current_tile = active_tiles.get(i);
             THTile next_tile = null;
             
-            current_tile.setObserved();
+            current_tile.setObserved(true);
             
             Point next_position = current_tile.getNextTilePosition();
             
@@ -245,7 +348,7 @@ public class THBoard{
         }
         
         if(next_vector.size() == 0){
-			ps.add(new THBoardReplaceTiles(this), 0);
+			ps.add(new THBoardShrinkObserved(this), THConstants.shrink_delay);
         }
         else{
             ps.add(new THBoardMarkChain(this, next_vector, current_length+1), THConstants.move_delay);
@@ -262,10 +365,10 @@ public class THBoard{
         
 		//if no tile is active, set as active_tile
         if(active_tile == null){
-            active_tile = clicked_tile;
+            select(clicked_tile);
         }
         else if(active_tile == clicked_tile){
-            active_tile = null;
+            deselect();
         }
         else{
             
@@ -274,7 +377,7 @@ public class THBoard{
             tileSwap(active_tile, clicked_tile);
 			
 			//if the move is not valid swap the tiles back and delay with error indication
-			if(!validChain(active_tile, 1) || !validChain(clicked_tile, 1)){
+			if(validChain(active_tile, 1) == false){
 				System.out.println("Invalid move");
 				tileSwap(active_tile, clicked_tile);
 				ps.add(new THBoardInvalidMove(this), THConstants.move_delay);
@@ -288,11 +391,10 @@ public class THBoard{
 			
             Vector<THTile> seed_tiles = new Vector<THTile>();
             seed_tiles.add(active_tile);
-            seed_tiles.add(clicked_tile);
             
             ps.add(new THBoardMarkChain(this, seed_tiles, 1), THConstants.invalid_delay);
 			
-			active_tile = null;
+			deselect();
         }
 		
 		game.repaint();
@@ -306,19 +408,19 @@ public class THBoard{
 	
 	public void revalidate(){
 		invalid_move = false;
-		active_tile = null;
+		deselect();
 		game.repaint();
 	}
 
 	//Function draws grid lines starting at point board_pos, and tells each tile
 	//to draw itself with the corresponding point
-	public void draw(Point board_pos, int tile_size, Graphics g){
+	public void draw(Graphics g){
 
 		//boolean determines whether horizontal lines should be drawn
 		boolean draw=true;
 		
-		int x = (int)board_pos.getX();
-		int y = (int)board_pos.getY();		
+		int x = (int)origin.getX();
+		int y = (int)origin.getY();		
 
 		//draws the background
 		if(game.isActive()){
@@ -326,15 +428,15 @@ public class THBoard{
 		}
 		else{
 			g.setColor(Color.lightGray);
-			active_tile = null;
+			deselect();
 		}
 		
 		g.fillRect(x, y, num_columns*tile_size, num_rows*tile_size);
         
 		//highlights the currently selected tile, if one is specified
 		if(active_tile != null){
-			int off_x = (int)active_tile.getArrayPosition().getX();
-			int off_y = (int)active_tile.getArrayPosition().getY();
+			int off_x = (int)active_tile.getActualPosition().getX();
+			int off_y = (int)active_tile.getActualPosition().getY();
 			
 			if(invalid_move){
 				g.setColor(Color.red);
@@ -343,7 +445,7 @@ public class THBoard{
 				g.setColor(Color.gray);				
 			}
 				
-			g.fillRect(x + off_x*tile_size, y + off_y*tile_size, tile_size, tile_size);
+			g.fillRect(off_x, off_y, tile_size, tile_size);
 		}
 
 		g.setColor(Color.black);
@@ -359,7 +461,7 @@ public class THBoard{
 				}
 				
 				if(!game.hideBoard()){
-					tile_array[i][j].draw(new Point(x+i*tile_size, y+j*tile_size), tile_size, g);
+					tile_array[i][j].draw(g);
 				}
 			}
 

@@ -68,5 +68,9 @@ public class THProcessScheduler implements ActionListener{
 		
 		return false;
 	}
+	
+	public boolean processesQueued(){
+		return !process_queue.isEmpty();
+	}
 }
 

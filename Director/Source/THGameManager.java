@@ -13,6 +13,7 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 	protected THBoard game_board;
 	protected THStatePanel state_panel;
 	protected THControlPanel control_panel;
+	protected THInfoPanel info;
 	
 	protected boolean game_active;
 	protected boolean process_active;
@@ -46,17 +47,14 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 	}
 	
 
-	public THGameManager(THStatePanel state){
+	public THGameManager(THStatePanel state, THInfoPanel info){
 		
 		ps = new THProcessScheduler();
 		ps.addTimerListener(this);
 		
-		//the new board is just for display. Another will be created upon the
-		//start of a new game
-		newBoard();
-		
 		state_panel = state;
-		
+		this.info = info;
+		game_board = null;
 		process_active = false;
 		game_paused = true;
 		game_active = false;
@@ -89,8 +87,8 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 		int board_x;
 		int board_y;
 
-		int num_columns = (int) game_board.getArraySize().getX();
-		int num_rows = (int) game_board.getArraySize().getY();
+		int num_columns = THConstants.board_width;
+		int num_rows = THConstants.board_height;
 		int screen_width = getWidth();
 		int screen_height = getHeight();
 		
@@ -120,7 +118,9 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 	}
 	
 	public void newBoard(){
-		game_board = new THBoard(this, ps);
+		THBoardSizer sizes = determineBoardAttributes();
+		game_board = new THBoard(this, ps, sizes.getPosition(), sizes.getTileSize(), info);
+		info.setBoard(game_board);
 		hide_board = true;
 		repaint();
 	}
@@ -150,6 +150,15 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 	}
 
 	public void endGame(){
+	
+		//if the process scheduler has additional events (such as animation)
+		//delay ending the game until the animation completes. Does not affect
+		//playtime, as the user cannot manipulate board while the process
+		//scheduler is active
+		if(ps.processesQueued()){
+			ps.add(new THGameManagerEndGame(this), 0);
+			return;
+		}
 	
 		ps.halt();
 		
@@ -196,9 +205,17 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 		state_panel.updateMoves(num_moves);
 	}
 	
-	public void paintComponent(Graphics g){	
-		THBoardSizer attributes = determineBoardAttributes();
-		game_board.draw(attributes.getPosition(), attributes.getTileSize(), g);
+	public void paintComponent(Graphics g){
+	
+		//used to initialize board at the start of the game
+		if(game_board == null){
+			newBoard();
+		}
+		else{
+			THBoardSizer attributes = determineBoardAttributes();
+			game_board.size(attributes.getPosition(), attributes.getTileSize());
+		}
+		game_board.draw(g);
 	}
 
 	//action comes from ps, occurs every 0.001s

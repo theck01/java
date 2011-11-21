@@ -14,7 +14,6 @@ public class THDimSpinners extends JPanel implements ChangeListener{
 	public THDimSpinners(THGameManager game){
 		
 		this.game = game;
-		enabled = true;
 		
 		setLayout(new GridLayout(2,2));
 		

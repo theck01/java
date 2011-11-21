@@ -20,13 +20,15 @@ public class Main extends JFrame{
 		content.setLayout(new BorderLayout());
 
 		THStatePanel state_panel = new THStatePanel();
-		THGameManager game = new THGameManager(state_panel);
+		THInfoPanel info_panel = new THInfoPanel();
+		THGameManager game = new THGameManager(state_panel, info_panel);
 		THControlPanel control_panel = new THControlPanel(game);
 		game.setControlPanel(control_panel);
 
 		content.add(state_panel, BorderLayout.NORTH);
 		content.add(game, BorderLayout.CENTER);
 		content.add(control_panel, BorderLayout.SOUTH);
+		content.add(info_panel, BorderLayout.EAST);
 
 		setVisible(true);
 	}
