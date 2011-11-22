@@ -1,6 +1,7 @@
 
 import java.awt.*;
 import javax.swing.*;
+import java.util.*;
 
 public class THDownTile extends THTile{
 
@@ -8,10 +9,12 @@ public class THDownTile extends THTile{
 		super(array_pos, actual_pos, target_pos, tile_size);
 	}
 
-	public Point getNextTilePosition(){
-		return new Point((int)array_position.getX(), (int)(array_position.getY()+1));
+	public Vector<Point> getNextTilePosition(){
+		Vector<Point> return_v = new Vector<Point>(1);
+		return_v.add(new Point((int)array_position.getX(), (int)array_position.getY()+1));
+		return return_v;
 	}
-
+	
 	public void draw(Graphics g){
 
 		int x = (int)actual_position.getX();

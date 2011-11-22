@@ -1,6 +1,7 @@
 
 import java.awt.*;
 import javax.swing.*;
+import java.util.*;
 
 public class THStopTile extends THTile{
 
@@ -8,8 +9,10 @@ public class THStopTile extends THTile{
 		super(array_pos, actual_pos, target_pos, tile_size);
 	}
 
-	public Point getNextTilePosition(){
-		return null;
+	public Vector<Point> getNextTilePosition(){
+		Vector<Point> return_v = new Vector<Point>(1);
+		return_v.add(null);
+		return return_v;
 	}
 
 	public void draw(Graphics g){

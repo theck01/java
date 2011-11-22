@@ -255,6 +255,7 @@ public class THBoard{
 	//ie that the chain is 3 or more tiles long
 	protected boolean validChain(THTile current_tile, int current_length){
 	
+		boolean valid = false;
 		//if chain is already long enough, return true
 		if(current_length >= THConstants.min_chain_length){
 				return true;
@@ -262,38 +263,47 @@ public class THBoard{
 		
 		current_tile.setObserved(true);
 		
-		Point next_position = current_tile.getNextTilePosition();
+		Vector<Point> next_positions = current_tile.getNextTilePosition();
 		
-		//if the current tile is a stop tile, return false, chain cannot
-		//be long enough
-		if(next_position == null){
-				current_tile.setObserved(false);
-				return false;
-		}
+		for(int i=0; i<next_positions.size(); i++){
 		
-		int x = (int)next_position.getX();
-		int y = (int)next_position.getY();
-		
-		//if the next tile is within the bounds of the board
-		if(x<num_columns && x >=0 && y<num_rows && y>=0){
-			
-			//and the next tile has already been observed then
-			//return false, chain cannot be long enough
-			if(tile_array[x][y].isObserved()){
-				current_tile.setObserved(false);
-				return false;
+			//if the current tile is a stop tile, return false, chain cannot
+			//be long enough
+			if(next_positions.get(i) == null){
+					current_tile.setObserved(false);
+					return false;
 			}
-			
-			//else continue checking if the chain is valid
-			boolean result = validChain(tile_array[x][y], current_length+1);
-			current_tile.setObserved(false);
-			return result;
+			else{
+				int x = (int)next_positions.get(i).getX();
+				int y = (int)next_positions.get(i).getY();
+				
+				//if the next tile is within the bounds of the board
+				if(x<num_columns && x >=0 && y<num_rows && y>=0){
+					
+					//and the next tile has already been observed then
+					//return false, chain cannot be long enough
+					if(tile_array[x][y].isObserved()){
+						current_tile.setObserved(false);
+					}
+					else{
+						//else continue checking if the chain is valid
+						boolean result = validChain(tile_array[x][y], current_length+1);
+						
+						if(result == true){
+							valid = true;
+						}
+						current_tile.setObserved(false);
+					}
+				}
+				else{
+					//else the tile points to a location off the board and returns if chain
+					//is long enough
+					current_tile.setObserved(false);
+				}
+			}
 		}
 		
-		//else the tile points to a location off the board and returns if chain
-		//is long enough
-		current_tile.setObserved(false);
-		return false;
+		return valid;
 	}
 
 	//function recursively iterates through all tiles in the current move chain
@@ -310,41 +320,46 @@ public class THBoard{
             
             current_tile.setObserved(true);
             
-            Point next_position = current_tile.getNextTilePosition();
+            Vector<Point> next_positions = current_tile.getNextTilePosition();
             
-            //if the current_tile represents a stop tile
-            if(next_position == null){
-                System.out.println("Stop tile encountered, ending tile branch");
-                game.updateScore(THConstants.stop_points*current_length);
-            }
-            else{
-			
-                int x = (int)next_position.getX();
-                int y = (int)next_position.getY();
-                
-                //if the current_tile points to another tile
-                if(x<num_columns && x >=0 && y<num_rows && y>=0){
-                    //and if the tile is marked, return score
-                    if(tile_array[x][y].isObserved()){
-                        System.out.println("Hit an already observed tile in the chain, ending chain");
-                        game.updateScore(THConstants.direction_points*current_length);
-                    }
-                    else{                        
-                        System.out.println("Continuing onto next tile in chain");
-                        game.updateScore(THConstants.direction_points*current_length);
-                        next_tile = tile_array[x][y];
-                    }
-                }
-                //if the current_tile points off the board return score
-                else{
-                    System.out.println("Next tile is out of board bounds, ending tile chain");
-                    game.updateScore(THConstants.direction_points*current_length);
-                }
+			for(int j=0; j<next_positions.size(); j++){
+				
+				next_tile = null;
+				//if the current_tile represents a stop tile
+				if(next_positions.get(j) == null){
+					System.out.println("Stop tile encountered, ending tile branch");
+					game.updateScore(THConstants.stop_points*current_length);
+				}
+				else{
+				
+					int x = (int)next_positions.get(j).getX();
+					int y = (int)next_positions.get(j).getY();
+					
+					//if the current_tile points to another tile
+					if(x<num_columns && x >=0 && y<num_rows && y>=0){
+						//and if the tile is marked, return score
+						if(tile_array[x][y].isObserved()){
+							System.out.println("Hit an already observed tile in the chain, ending chain");
+							game.updateScore(THConstants.direction_points*current_length);
+						}
+						else{                        
+							System.out.println("Continuing onto next tile in chain");
+							game.updateScore(THConstants.direction_points*current_length);
+							next_tile = tile_array[x][y];
+						}
+					}
+					//if the current_tile points off the board return score
+					else{
+						System.out.println("Next tile is out of board bounds, ending tile chain");
+						game.updateScore(THConstants.direction_points*current_length);
+					}
+				}
+				
+				if(next_tile != null){
+					next_vector.add(next_tile);
+				}
             }
             
-            if(next_tile != null){
-                next_vector.add(next_tile);
-            }
         }
         
         if(next_vector.size() == 0){

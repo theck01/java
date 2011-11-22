@@ -1,6 +1,7 @@
 
 import java.awt.*;
 import javax.swing.*;
+import java.util.*;
 
 //Contains all common methods for the THTile subclasses
 abstract class THTile{
@@ -136,7 +137,7 @@ abstract class THTile{
 
 	//get next tile method will return the point in the array where the next
 	//tile in the chain is located or null
-	abstract Point getNextTilePosition();
+	abstract Vector<Point> getNextTilePosition();
 
 	//draw method informs the tile about the location and size at which drawing
 	//should occur
