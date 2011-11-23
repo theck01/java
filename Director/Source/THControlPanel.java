@@ -9,31 +9,59 @@ public class THControlPanel extends JPanel implements ActionListener{
 	protected JButton new_game_btn;
 	protected JButton pause_btn;
 	protected THDimSpinners dim;
-	protected boolean is_paused;
-	protected THGameManager game_mngr;
-
-	public THControlPanel(THGameManager game_mngr){
 	
+	protected boolean is_paused;
+	protected boolean contest;
+	
+	protected THGameManager game_mngr;
+	protected Main window;
+
+	public THControlPanel(THGameManager game_mngr, Main window, boolean contest){
+	
+		this.contest = contest;
 		this.game_mngr = game_mngr;
+		this.window = window;
 		
-		new_game_btn = new JButton("New Game");
-		pause_btn = new JButton("Pause");
-		dim = new THDimSpinners(game_mngr);
+		new_game_btn = new JButton("New Game");	
+		new_game_btn.addActionListener(this);
+		
+		if(contest){
+			pause_btn = new JButton("Pause");
+			pause_btn.addActionListener(this);
+		}
+		
+		if(!contest){
+			dim = new THDimSpinners(game_mngr);
+		}
 		
 		add(new_game_btn);
-		add(pause_btn);
-		add(dim);
 		
-		new_game_btn.addActionListener(this);
-		pause_btn.addActionListener(this);
+		if(contest){
+			add(pause_btn);
+		}
+		
+		if(!contest){
+			add(dim);
+		}
+		
+	
 		
 		is_paused = false;
 	}
 
 	public void actionPerformed(ActionEvent e){
 		if(e.getSource() == new_game_btn){
-			if(!is_paused){
+			if(new_game_btn.getText().compareTo("New Game") == 0){
 				game_mngr.startGame();
+				new_game_btn.setText("Main Menu");
+			}
+			else{
+				if(game_mngr.gameRunning()){
+					game_mngr.endGame();
+				}
+				
+				game_mngr.clearGame();
+				window.goToMenu();
 			}
 		}
 		else{
@@ -51,14 +79,14 @@ public class THControlPanel extends JPanel implements ActionListener{
 	}
 	
 	public void gameActiveControls(){
-		new_game_btn.setEnabled(false);
-		dim.setEnabled(false);
-		pause_btn.setEnabled(true);
+		if(contest){
+			pause_btn.setEnabled(true);
+		}
 	}
 	
 	public void gameInactiveControls(){
-		new_game_btn.setEnabled(true);
-		dim.setEnabled(true);
-		pause_btn.setEnabled(false);		
+		if(contest){
+			pause_btn.setEnabled(false);
+		}
 	}
 }

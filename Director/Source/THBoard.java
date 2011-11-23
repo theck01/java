@@ -8,6 +8,8 @@ public class THBoard{
 	protected Point origin;
 	protected int tile_size;
 	
+	protected boolean contest;
+	
 	//later implementations of the game will allow for variably sized game board
 	protected int num_columns, num_rows;
 	protected THTile[][] tile_array;
@@ -21,8 +23,10 @@ public class THBoard{
 
 	//constructs a new THBoard with default size 10X10 and fills with random
 	//tiles
-	public THBoard(THGameManager game_mngr, THProcessScheduler ps, Point origin, int tile_size, THInfoPanel info){
+	public THBoard(THGameManager game_mngr, THProcessScheduler ps, Point origin, int tile_size, THInfoPanel info, boolean contest){
 
+		this.contest = contest;
+		
 		this.info = info;
 		this.origin = origin;
 		this.tile_size = tile_size;
@@ -75,13 +79,18 @@ public class THBoard{
 	
 	public void deselect(){
 		active_tile = null;
-		info.noneSelected();
+		if(info != null){
+			info.noneSelected();
+		}
 		game.repaint();
 	}
 	
 	public void select(THTile tile){
 		active_tile = tile;
-		info.tileSelected(tile);
+		if(info != null){	
+			info.tileSelected(tile);
+		}
+		game.repaint();
 	}
 	
 	public void replaceTile(THTile t, int tile_id){
@@ -107,6 +116,12 @@ public class THBoard{
 				break;
 			case THConstants.down_id:
 				tile_array[x][y] = new THDownTile(i,a,tp,s);
+				break;
+			case THConstants.splitv_id:
+				tile_array[x][y] = new THSplitVTile(i,a,tp,s);
+				break;
+			case THConstants.splith_id:
+				tile_array[x][y] = new THSplitHTile(i,a,tp,s);
 				break;
 			default:
 				tile_array[x][y] = new THStopTile(i,a,tp,s);
@@ -250,61 +265,6 @@ public class THBoard{
 		
 		return;
 	}
-	
-	//checks that a valid chain of tiles is created from the user move,
-	//ie that the chain is 3 or more tiles long
-	protected boolean validChain(THTile current_tile, int current_length){
-	
-		boolean valid = false;
-		//if chain is already long enough, return true
-		if(current_length >= THConstants.min_chain_length){
-				return true;
-		}
-		
-		current_tile.setObserved(true);
-		
-		Vector<Point> next_positions = current_tile.getNextTilePosition();
-		
-		for(int i=0; i<next_positions.size(); i++){
-		
-			//if the current tile is a stop tile, return false, chain cannot
-			//be long enough
-			if(next_positions.get(i) == null){
-					current_tile.setObserved(false);
-					return false;
-			}
-			else{
-				int x = (int)next_positions.get(i).getX();
-				int y = (int)next_positions.get(i).getY();
-				
-				//if the next tile is within the bounds of the board
-				if(x<num_columns && x >=0 && y<num_rows && y>=0){
-					
-					//and the next tile has already been observed then
-					//return false, chain cannot be long enough
-					if(tile_array[x][y].isObserved()){
-						current_tile.setObserved(false);
-					}
-					else{
-						//else continue checking if the chain is valid
-						boolean result = validChain(tile_array[x][y], current_length+1);
-						
-						if(result == true){
-							valid = true;
-						}
-						current_tile.setObserved(false);
-					}
-				}
-				else{
-					//else the tile points to a location off the board and returns if chain
-					//is long enough
-					current_tile.setObserved(false);
-				}
-			}
-		}
-		
-		return valid;
-	}
 
 	//function recursively iterates through all tiles in the current move chain
 	//and tabulates the score
@@ -315,12 +275,17 @@ public class THBoard{
         
         for(int i=0; i<active_tiles.size(); i++){
             
+			boolean split=false;
+			
             THTile current_tile = active_tiles.get(i);
             THTile next_tile = null;
             
             current_tile.setObserved(true);
             
             Vector<Point> next_positions = current_tile.getNextTilePosition();
+			if(next_positions.size()>1){
+				split = true;
+			}
             
 			for(int j=0; j<next_positions.size(); j++){
 				
@@ -340,18 +305,31 @@ public class THBoard{
 						//and if the tile is marked, return score
 						if(tile_array[x][y].isObserved()){
 							System.out.println("Hit an already observed tile in the chain, ending chain");
-							game.updateScore(THConstants.direction_points*current_length);
+							
+							//if the tile is a split tile, no points should be earned
+							if(!split){
+								game.updateScore(THConstants.direction_points*current_length);
+							}
 						}
 						else{                        
 							System.out.println("Continuing onto next tile in chain");
-							game.updateScore(THConstants.direction_points*current_length);
+							
+							//if the tile is a split tile then no points should be earned
+							if(!split){
+								game.updateScore(THConstants.direction_points*current_length);
+							}
+							
 							next_tile = tile_array[x][y];
 						}
 					}
 					//if the current_tile points off the board return score
 					else{
 						System.out.println("Next tile is out of board bounds, ending tile chain");
-						game.updateScore(THConstants.direction_points*current_length);
+						
+						//if the tile is a split tile then no points should be earned
+						if(!split){
+							game.updateScore(THConstants.direction_points*current_length);
+						}
 					}
 				}
 				
@@ -391,17 +369,6 @@ public class THBoard{
             
             tileSwap(active_tile, clicked_tile);
 			
-			//if the move is not valid swap the tiles back and delay with error indication
-			if(validChain(active_tile, 1) == false){
-				System.out.println("Invalid move");
-				tileSwap(active_tile, clicked_tile);
-				ps.add(new THBoardInvalidMove(this), THConstants.move_delay);
-				game.repaint();
-				return;
-			}
-            
-			//else process the valid user move
-			System.out.println("Valid move");
 			game.incNumMoves();
 			
             Vector<THTile> seed_tiles = new Vector<THTile>();
@@ -412,18 +379,6 @@ public class THBoard{
 			deselect();
         }
 		
-		game.repaint();
-	}
-	
-	public void invalidMove(){
-		invalid_move = true;
-		ps.add(new THBoardRevalidate(this), 0);
-		game.repaint();
-	}
-	
-	public void revalidate(){
-		invalid_move = false;
-		deselect();
 		game.repaint();
 	}
 

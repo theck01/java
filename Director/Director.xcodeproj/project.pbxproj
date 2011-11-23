@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		3A088DDE145F434000078AA5 /* Main.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = Main.java; path = Source/Main.java; sourceTree = "<group>"; };
+		3A088DDE145F434000078AA5 /* THFreePlayView.java */ = {isa = PBXFileReference; name = THFreePlayView.java; path = Source/THFreePlayView.java; sourceTree = "<group>"; };
 		3A088DDF145F434000078AA5 /* THBoard.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THBoard.java; path = Source/THBoard.java; sourceTree = "<group>"; };
 		3A088DE0145F434000078AA5 /* THGameManager.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THGameManager.java; path = Source/THGameManager.java; sourceTree = "<group>"; };
 		3A088DE1145F434000078AA5 /* THProcess.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THProcess.java; path = Source/THProcess.java; sourceTree = "<group>"; };
@@ -25,19 +25,26 @@
 		3A1147D8147994AF000046C4 /* THBoardShrinkObserved.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THBoardShrinkObserved.java; path = Source/THBoardShrinkObserved.java; sourceTree = "<group>"; };
 		3A1147D9147994AF000046C4 /* THBoardAnimate.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THBoardAnimate.java; path = Source/THBoardAnimate.java; sourceTree = "<group>"; };
 		3A780ABD14648BD8006A3878 /* THGameManagerEndGame.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THGameManagerEndGame.java; path = Source/THGameManagerEndGame.java; sourceTree = "<group>"; };
-		3AA1F8041463386D007288AE /* THBoardInvalidMove.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THBoardInvalidMove.java; path = Source/THBoardInvalidMove.java; sourceTree = "<group>"; };
-		3AA1F80514633B1F007288AE /* THBoardRevalidate.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THBoardRevalidate.java; path = Source/THBoardRevalidate.java; sourceTree = "<group>"; };
 		3AA2AF5014642A9E00CC8C7C /* THDimSpinners.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THDimSpinners.java; path = Source/THDimSpinners.java; sourceTree = "<group>"; };
 		3AB518191461D3DC00129558 /* THBoardReplaceTiles.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THBoardReplaceTiles.java; path = Source/THBoardReplaceTiles.java; sourceTree = "<group>"; };
 		3AB87FD4146081ED004EC224 /* THBoardMarkChain.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THBoardMarkChain.java; path = Source/THBoardMarkChain.java; sourceTree = "<group>"; };
 		3AC4AE83147AF2F100F324D5 /* THInfoPanel.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THInfoPanel.java; path = Source/THInfoPanel.java; sourceTree = "<group>"; };
+		3AE452B9147BFFFB0021076D /* THSplitVTile.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THSplitVTile.java; path = Source/THSplitVTile.java; sourceTree = "<group>"; };
+		3AE452BA147BFFFB0021076D /* THSplitHTile.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THSplitHTile.java; path = Source/THSplitHTile.java; sourceTree = "<group>"; };
+		3AE452BC147C3E540021076D /* Main.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = Main.java; path = Source/Main.java; sourceTree = "<group>"; };
+		3AE452BD147C405B0021076D /* THMenuView.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THMenuView.java; path = Source/THMenuView.java; sourceTree = "<group>"; };
+		3AE452BE147C46E00021076D /* THTileDisplayer.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THTileDisplayer.java; path = Source/THTileDisplayer.java; sourceTree = "<group>"; };
+		3AE452BF147C6B280021076D /* THAboutView.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = THAboutView.java; path = Source/THAboutView.java; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
 		3A088DD5145F432F00078AA5 = {
 			isa = PBXGroup;
 			children = (
-				3A088DDE145F434000078AA5 /* Main.java */,
+				3AE452BC147C3E540021076D /* Main.java */,
+				3AE452BD147C405B0021076D /* THMenuView.java */,
+				3AE452BF147C6B280021076D /* THAboutView.java */,
+				3A088DDE145F434000078AA5 /* THFreePlayView.java */,
 				3A088DEE145F453700078AA5 /* THControlPanel.java */,
 				3AA2AF5014642A9E00CC8C7C /* THDimSpinners.java */,
 				3A088DE9145F436100078AA5 /* THStatePanel.java */,
@@ -56,11 +63,14 @@
 			isa = PBXGroup;
 			children = (
 				3A088DEB145F436100078AA5 /* THTile.java */,
+				3AE452B9147BFFFB0021076D /* THSplitVTile.java */,
+				3AE452BA147BFFFB0021076D /* THSplitHTile.java */,
 				3A088DE7145F436100078AA5 /* THLeftTile.java */,
 				3A088DE8145F436100078AA5 /* THRightTile.java */,
 				3A088DED145F436100078AA5 /* THUpTile.java */,
 				3A088DE6145F436100078AA5 /* THDownTile.java */,
 				3A088DEA145F436100078AA5 /* THStopTile.java */,
+				3AE452BE147C46E00021076D /* THTileDisplayer.java */,
 			);
 			name = "THTile and Subclasses";
 			sourceTree = "<group>";
@@ -74,8 +84,6 @@
 				3AB518191461D3DC00129558 /* THBoardReplaceTiles.java */,
 				3A1147D8147994AF000046C4 /* THBoardShrinkObserved.java */,
 				3A1147D9147994AF000046C4 /* THBoardAnimate.java */,
-				3AA1F80514633B1F007288AE /* THBoardRevalidate.java */,
-				3AA1F8041463386D007288AE /* THBoardInvalidMove.java */,
 			);
 			name = "THProcess and Subclasses";
 			sourceTree = "<group>";

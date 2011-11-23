@@ -58,6 +58,11 @@ public class THStatePanel extends JPanel{
 		return;
 	}
 	
+	public void updateTime(String time_str){
+		time_label.setText("Time Left -- " + time_str);
+		repaint();
+	}
+	
 	public void updateMoves(int num_moves){
 		move_label.setText("Valid Moves -- " + num_moves);
 	}

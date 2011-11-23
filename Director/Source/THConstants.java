@@ -21,7 +21,7 @@ public class THConstants{
 	//Points and game constants
 	static public int stop_points = 100;
 	static public int direction_points = 10;
-	static public int min_chain_length = 3;
+	static public int split_points = 0;
 	
 	static public int game_duration = 60000; //1 min
 	static public int timer_interval = 1; //1 ms
@@ -36,6 +36,8 @@ public class THConstants{
 	static final public int up_id = 2;
 	static final public int down_id = 3;
 	static final public int stop_id = 4;
+	static final public int splitv_id = 5;
+	static final public int splith_id = 6;
 
 	private THConstants(){}
 	

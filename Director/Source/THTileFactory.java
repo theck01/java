@@ -15,17 +15,23 @@ public class THTileFactory{
 		int x = (int)array_pos.getX();
 		int y = (int)array_pos.getY();
 		
-		if(random_num < 0.22){
+		if(random_num < 0.21){
 			return new THLeftTile(array_pos, actual_pos, target_pos, tile_size);
 		}
-		else if(random_num < 0.44){
+		else if(random_num < 0.42){
 			return new THRightTile(array_pos, actual_pos, target_pos, tile_size);
 		}
-		else if(random_num < 0.66){
+		else if(random_num < 0.63){
 			return new THUpTile(array_pos, actual_pos, target_pos, tile_size);
 		}
-		else if(random_num < 0.88){
+		else if(random_num < 0.84){
 			return new THDownTile(array_pos, actual_pos, target_pos, tile_size);
+		}
+		else if(random_num < 0.87){
+			return new THSplitVTile(array_pos, actual_pos, target_pos, tile_size);
+		}
+		else if(random_num < 0.9){
+			return new THSplitHTile(array_pos, actual_pos, target_pos, tile_size);
 		}
 		else{
 			return new THStopTile(array_pos, actual_pos, target_pos, tile_size);

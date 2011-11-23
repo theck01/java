@@ -10,7 +10,7 @@ public class THInfoPanel extends JPanel implements ItemListener, ActionListener{
 	THTile tile;
 	JLabel	array_p, target_p, actual_p, size, actual_size;
 	THBoard board;
-	JCheckBox left, right, up, down, stop;
+	JCheckBox left, right, up, down, stop, splitv, splith;
 	JButton deselect;
 	
 	public THInfoPanel(){
@@ -39,7 +39,7 @@ public class THInfoPanel extends JPanel implements ItemListener, ActionListener{
 		//Checkbox subpanel creation
 		ButtonGroup g = new ButtonGroup();
 		JPanel box_panel = new JPanel();
-		box_panel.setLayout(new GridLayout(2,3));
+		box_panel.setLayout(new GridLayout(3,3));
 		
 		left = new JCheckBox("Left", false);
 		g.add(left);
@@ -51,20 +51,30 @@ public class THInfoPanel extends JPanel implements ItemListener, ActionListener{
 		right.addItemListener(this);
 		box_panel.add(right);
 		
-		stop = new JCheckBox("Stop", false);
-		g.add(stop);
-		stop.addItemListener(this);
-		box_panel.add(stop);
-		
 		up = new JCheckBox("Up", false);
 		g.add(up);
 		up.addItemListener(this);
 		box_panel.add(up);
 		
+		splith = new JCheckBox("Split Hor.", false);
+		g.add(splith);
+		splith.addItemListener(this);
+		box_panel.add(splith);
+		
+		splitv = new JCheckBox("Split Vert.", false);
+		g.add(splitv);
+		splitv.addItemListener(this);
+		box_panel.add(splitv);
+		
 		down = new JCheckBox("Down", false);
 		g.add(down);
 		down.addItemListener(this);
 		box_panel.add(down);
+		
+		stop = new JCheckBox("Stop", false);
+		g.add(stop);
+		stop.addItemListener(this);
+		box_panel.add(stop);
 		
 		add(box_panel);
 		
@@ -120,6 +130,12 @@ public class THInfoPanel extends JPanel implements ItemListener, ActionListener{
 				case THConstants.down_id:
 					down.setSelected(true);
 					break;
+				case THConstants.splith_id:
+					splith.setSelected(true);
+					break;
+				case THConstants.splitv_id:
+					splitv.setSelected(true);
+					break;
 				default:
 					stop.setSelected(true);
 					break;
@@ -129,16 +145,23 @@ public class THInfoPanel extends JPanel implements ItemListener, ActionListener{
 	}
 	
 	protected void disableControls(){
-		left.setEnabled(false);
+		
 		left.setSelected(false);
-		right.setEnabled(false);
 		right.setSelected(false);
-		up.setEnabled(false);
 		up.setSelected(false);
-		down.setEnabled(false);
 		down.setSelected(false);
-		stop.setEnabled(false);
 		stop.setSelected(false);
+		splitv.setSelected(false);
+		splith.setSelected(false);
+		
+		left.setEnabled(false);
+		right.setEnabled(false);
+		up.setEnabled(false);
+		down.setEnabled(false);
+		stop.setEnabled(false);
+		splitv.setEnabled(false);
+		splith.setEnabled(false);
+		
 		deselect.setEnabled(false);
 	}
 	
@@ -148,6 +171,8 @@ public class THInfoPanel extends JPanel implements ItemListener, ActionListener{
 		up.setEnabled(true);
 		down.setEnabled(true);
 		stop.setEnabled(true);
+		splith.setEnabled(true);
+		splitv.setEnabled(true);
 		deselect.setEnabled(true);
 	}
 	
@@ -181,6 +206,12 @@ public class THInfoPanel extends JPanel implements ItemListener, ActionListener{
 			}
 			else if(sel.compareTo("Down") == 0){
 				board.replaceTile(tile, THConstants.down_id);
+			}
+			else if(sel.compareTo("Split Hor.") == 0){
+				board.replaceTile(tile, THConstants.splith_id);
+			}
+			else if(sel.compareTo("Split Vert.") == 0){
+				board.replaceTile(tile, THConstants.splitv_id);
 			}
 			else{
 				board.replaceTile(tile, THConstants.stop_id);

@@ -19,6 +19,7 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 	protected boolean process_active;
 	protected boolean game_paused;
 	protected boolean hide_board;
+	protected boolean contest;
 	
 	protected int time_left;
 	protected int game_score;
@@ -47,7 +48,9 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 	}
 	
 
-	public THGameManager(THStatePanel state, THInfoPanel info){
+	public THGameManager(THStatePanel state, THInfoPanel info, boolean contest){
+		
+		this.contest = contest;
 		
 		ps = new THProcessScheduler();
 		ps.addTimerListener(this);
@@ -119,22 +122,21 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 	
 	public void newBoard(){
 		THBoardSizer sizes = determineBoardAttributes();
-		game_board = new THBoard(this, ps, sizes.getPosition(), sizes.getTileSize(), info);
-		info.setBoard(game_board);
-		hide_board = true;
+		
+		game_board = new THBoard(this, ps, sizes.getPosition(), sizes.getTileSize(), info, contest);
+		if(!contest){
+			info.setBoard(game_board);
+		}
+		
+		if(!game_active){
+			hide_board = true;
+		}
 		repaint();
 	}
 
 	public void startGame(){
 	
-		newBoard();
-
-		game_score = 0;
-		num_moves = 0;
-		time_left = THConstants.game_duration;
-		state_panel.updateScore(game_score);
-		state_panel.updateMoves(num_moves);
-		state_panel.updateTime(time_left);
+		clearGame();
 
 		game_paused = false;
 		game_active = true;
@@ -191,6 +193,10 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 		return (game_active && !game_paused);
 	}
 	
+	public boolean gameRunning(){
+		return game_active;
+	}
+	
 	public boolean hideBoard(){
 		return hide_board;	
 	}
@@ -203,6 +209,22 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 	public void incNumMoves(){
 		num_moves++;
 		state_panel.updateMoves(num_moves);
+	}
+	
+	public void clearGame(){
+		newBoard();
+		
+		game_score = 0;
+		num_moves = 0;
+		time_left = THConstants.game_duration;
+		state_panel.updateScore(game_score);
+		state_panel.updateMoves(num_moves);
+		if(time_left < 0){
+			state_panel.updateTime("Infinite");
+		}
+		else{
+			state_panel.updateTime(time_left);
+		}
 	}
 	
 	public void paintComponent(Graphics g){
@@ -220,6 +242,10 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 
 	//action comes from ps, occurs every 0.001s
 	public void actionPerformed(ActionEvent e){
+	
+		if(time_left < 0){
+			return;
+		}
 	
 		time_left--;
 		state_panel.updateTime(time_left);
