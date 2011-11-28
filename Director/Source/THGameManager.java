@@ -176,6 +176,7 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 
 	public void pause(){
 		ps.halt();
+		hide_board = true;
 		game_paused = true;
 		repaint();
 		return;
@@ -183,6 +184,7 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 
 	public void resume(){
 		ps.start();
+		hide_board = false;
 		game_paused = false;
 		repaint();
 		return;
@@ -209,6 +211,10 @@ public class THGameManager extends JComponent implements MouseListener, ActionLi
 	public void incNumMoves(){
 		num_moves++;
 		state_panel.updateMoves(num_moves);
+	}
+	
+	public int getScore(){
+		return game_score;
 	}
 	
 	public void clearGame(){

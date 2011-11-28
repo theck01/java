@@ -13,6 +13,7 @@ public class THMenuView extends JPanel implements ActionListener{
 	protected JButton freeplay;
 	protected JButton contest;
 	protected JButton about;
+	protected JButton highscore;
 	
 	public THMenuView(Main window){
 	
@@ -28,6 +29,8 @@ public class THMenuView extends JPanel implements ActionListener{
 		freeplay.addActionListener(this);
 		about = new JButton("About");
 		about.addActionListener(this);
+		highscore = new JButton("High Scores");
+		highscore.addActionListener(this);
 		
 		JLabel title = new JLabel("DIRECTOR");
 		JLabel empty = new JLabel("");
@@ -69,7 +72,15 @@ public class THMenuView extends JPanel implements ActionListener{
 		gbc.gridwidth = 1;
 		gbc.gridheight = 1;
 		gbc.fill = GridBagConstraints.BOTH;
-		add(about, gbc);		
+		add(about, gbc);
+		
+		gbc = new GridBagConstraints();
+		gbc.gridx = 2;
+		gbc.gridy = 7;
+		gbc.gridwidth = 1;
+		gbc.gridheight = 1;
+		gbc.fill = GridBagConstraints.BOTH;
+		add(highscore, gbc);			
 	}
 	
 	
@@ -79,6 +90,12 @@ public class THMenuView extends JPanel implements ActionListener{
 		}
 		else if(e.getSource() == freeplay){
 			window.goToFreePlay();
+		}
+		else if(e.getSource() == contest){
+			window.goToContest();
+		}
+		else{
+			window.goToHighScore();
 		}
 	}
 }

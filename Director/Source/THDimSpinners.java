@@ -34,9 +34,14 @@ public class THDimSpinners extends JPanel implements ChangeListener{
 	}
 	
 	public void stateChanged(ChangeEvent e){
-			THConstants.setBoardHeight(((Integer)rows.getValue()).intValue());
-			THConstants.setBoardWidth(((Integer)columns.getValue()).intValue());
-			game.newBoard();
+		THConstants.setBoardHeight(((Integer)rows.getValue()).intValue());
+		THConstants.setBoardWidth(((Integer)columns.getValue()).intValue());
+		game.newBoard();
+	}
+	
+	public void setValues(int width, int height){
+		rows.setValue(new Integer(height));
+		columns.setValue(new Integer(width));
 	}
 	
 	public void setEnabled(boolean enabled){

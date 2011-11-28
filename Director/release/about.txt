@@ -1,0 +1,10 @@
+Director is played by clicking on a tile within the game board, and then clicking on the location where the tile should be moved. After the tile is moved a chain is created by following the direction that the chain of arrows point in, starting at the chosen tile. Points are earned with each tile, with the default values for points being multiplied by the length of the tile chain to that point. Default point values are:
+	-10 for unidirectional tiles
+	-100 for stop tiles (the squares)
+	-0 for bidirectional tiles
+The object of the game is to gain the greatest number of points within the time limit.
+
+Two modes of gameplay exist for DIRECTOR:
+	- A free play mode that has no time limit and a customizable board.
+	- A contest mode with a one minute time limit and a set 7x7 game board.
+Free play allows users to create their own board and practice playing the game. Contest mode allows multiple players to compete against one another for high scores, and if a score has been beaten then the player has the ability to save the score in addition to his/her name to the high score list.

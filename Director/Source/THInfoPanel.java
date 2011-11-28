@@ -16,25 +16,74 @@ public class THInfoPanel extends JPanel implements ItemListener, ActionListener{
 	public THInfoPanel(){
 		
 		board = null;
-		
-		setLayout(new GridLayout(7,1));
-		
+		GridBagLayout gbl = new GridBagLayout();
+		setLayout(gbl);
+				
 		//Label addition
 		array_p = new JLabel();
 		array_p.setHorizontalAlignment(JLabel.LEFT);
-		add(array_p);
+		
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.gridwidth = 3;
+		gbc.gridheight = 1;
+		gbc.weightx = 0;
+		gbc.weighty=0;
+		gbc.fill = GridBagConstraints.NONE;
+		add(array_p, gbc);
+		
 		actual_p = new JLabel();
 		actual_p.setHorizontalAlignment(JLabel.LEFT);
-		add(actual_p);
+		
+		gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.gridwidth = 3;
+		gbc.gridheight = 1;
+		gbc.weightx = 0;
+		gbc.weighty=0;
+		gbc.fill = GridBagConstraints.NONE;
+		add(actual_p, gbc);
+		
 		target_p = new JLabel();
 		target_p.setHorizontalAlignment(JLabel.LEFT);
-		add(target_p);
+		
+		gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 3;
+		gbc.gridwidth = 3;
+		gbc.gridheight = 1;
+		gbc.weightx = 0;
+		gbc.weighty=0;
+		gbc.fill = GridBagConstraints.NONE;
+		add(target_p, gbc);
+		
 		size = new JLabel();
 		size.setHorizontalAlignment(JLabel.LEFT);
-		add(size);
+		
+		gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 4;
+		gbc.gridwidth = 3;
+		gbc.gridheight = 1;
+		gbc.weightx = 0;
+		gbc.weighty=0;
+		gbc.fill = GridBagConstraints.NONE;
+		add(size, gbc);
+		
 		actual_size = new JLabel();
 		actual_size.setHorizontalAlignment(JLabel.LEFT);
-		add(actual_size);
+		
+		gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 5;
+		gbc.gridwidth = 3;
+		gbc.gridheight = 1;
+		gbc.weightx = 0;
+		gbc.weighty=0;
+		gbc.fill = GridBagConstraints.NONE;
+		add(actual_size,gbc);
 		
 		//Checkbox subpanel creation
 		ButtonGroup g = new ButtonGroup();
@@ -76,12 +125,29 @@ public class THInfoPanel extends JPanel implements ItemListener, ActionListener{
 		stop.addItemListener(this);
 		box_panel.add(stop);
 		
-		add(box_panel);
+		gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 6;
+		gbc.gridwidth = 3;
+		gbc.gridheight = 3;
+		gbc.weightx = 0;
+		gbc.weighty = 0;
+		gbc.fill = GridBagConstraints.NONE;
+		add(box_panel,gbc);
 		
 		//Button creation
 		deselect = new JButton("Deselect Tile");
 		deselect.addActionListener(this);
-		add(deselect);
+		
+		gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 9;
+		gbc.gridwidth = 3;
+		gbc.gridheight = 1;
+		gbc.weightx = 0;
+		gbc.weighty = 0;
+		gbc.fill = GridBagConstraints.NONE;
+		add(deselect,gbc);
 		
 		noneSelected();
 	}

@@ -22,7 +22,7 @@ public class THControlPanel extends JPanel implements ActionListener{
 		this.game_mngr = game_mngr;
 		this.window = window;
 		
-		new_game_btn = new JButton("New Game");	
+		new_game_btn = new JButton("Start");	
 		new_game_btn.addActionListener(this);
 		
 		if(contest){
@@ -51,17 +51,35 @@ public class THControlPanel extends JPanel implements ActionListener{
 
 	public void actionPerformed(ActionEvent e){
 		if(e.getSource() == new_game_btn){
-			if(new_game_btn.getText().compareTo("New Game") == 0){
+			if(new_game_btn.getText().compareTo("Start") == 0){
 				game_mngr.startGame();
 				new_game_btn.setText("Main Menu");
 			}
 			else{
+			
+				new_game_btn.setText("Start");
+				THConstants.setBoardHeight(THConstants.contest_height);
+				THConstants.setBoardWidth(THConstants.contest_width);
+				if(!contest){
+					dim.setValues(THConstants.board_width, THConstants.board_height);
+				}
+				
+				int score = 0;
 				if(game_mngr.gameRunning()){
 					game_mngr.endGame();
 				}
+				else{
+					score = game_mngr.getScore();
+				}
 				
 				game_mngr.clearGame();
-				window.goToMenu();
+				
+				if(contest){
+					window.goToHighScore(score);
+				}
+				else{
+					window.goToMenu();
+				}
 			}
 		}
 		else{
