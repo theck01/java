@@ -1,1 +1,308 @@
-Java programs for Comp 106 at Tufts University and personal java projects.
+
+	Included source files contain a game inspired by Bejeweled. The game displays
+a grid of tiles that contain arrows pointing up, down, left, or right. The game
+is played by clicking on one tile to select it, and then clicking on another tile
+to switch the positions of the two tiles. The move is valid if the chain created
+each tile in the swapped position is greater than three. If this is the case points
+are earned and the chain of tiles is removed and new tiles take their place by
+"falling" from the top fo the screen. If the move is decided to be invalid then
+the selected tile flashes red and a swap is not allowed. The object of the game
+is to get the highest number of points in the time alotted.
+	There are three controls available to the user, a new game button, a pause
+button, and a pair of board sizing spinners. The new game button creates a new
+game with a brand new board if a game is not currently being played. The pause
+button allows for the game currently being played to be halted, and renders the
+game board unresponsive to user input. The board sizing controls allow the board
+to be resized between minimum and maximum dimensions in each the number of columns
+and the number of rows. This control is only active when a game is not currently
+being played.
+	There are four items in the state panel that the user can observe about the
+game. The time left counts down from the maximum time until the game is completed.
+The score label displays the current score of the game or the score of the previous
+game if a new game has not been started. The number of valid moves displays the
+number of moves that the player has made during the current game. The final label
+displays the title of the game, Director.
+
+To compile and run execute the following commands within the terminal:
+	javac *.java
+	java Main
+
+	
+
+DESIGN FOR HW2 GAME
+
+Main:
+	Instance Variables: none
+	Methods: Constructor
+	Responsibilities:
+		Set up main window
+		Create THStatePanel and THGameManager instances
+
+THDimSpinners:
+	Instance Variables:
+		Pointer to JSpinner in charge of the number of rows
+		Pointer to JSpinner in charge of the number of columns
+		Pointer to the THGameManager Class
+	Methods:
+		Overloaded stateChanged() listener function
+		setEnabled(), sets whether the JSpinners should respond to events
+	Responsibilities:
+		Displaying current number of rows and columns in the board and changing
+		the dimensions of the board when enabled.
+	Uses:
+		THConstants to update the values of the number of rows and columns 
+
+THControlPanel:
+	Instance Variables:
+		Pointer to JButton that sends new game callback
+		Pointer to JButton that sends pause game callback
+		Pointer to THDimSpinners that update board size (sends no callback)
+		Boolean declaring pause state
+		Pointer to the only THGameManager in the Application
+	Methods:
+		Overloaded actionPerfomed() that responds to button presses
+		gameActiveControls() and gameInactiveControls() that set the useable
+			controls depending upon the state of the game
+	Responsibilities:
+		Reacting to events caused by user manipulting controls and formatting
+		said controls.
+	Uses:
+		THDimSpinners to react to dimension control interaction
+		THGameManager to send function calls to the proper objects
+
+THStatePanel:
+	Instance Variables:
+		Pointer to JLabel that displays game time left
+		Pointer to JLabel that displays the score of the current game
+		Pointer to JLabel that displays the number of moves in the current game
+	Methods:
+		updateScore(), sets the display string of the score label
+		updateTime(), sets the display string of the time label
+		updateMoves(), sets the display string of the valid move label
+	Responsibilities:
+		Displaying the current score, time left in the game, current number
+			of moves and the title of the game.
+
+THGameManager:
+	Instance Variables:
+		Pointer to the only THBoard in the application
+		Pointer to the only THStatePanel in the application
+		Pointer to the only THProcessScheduler in the application
+		Pointer to the only THControlPanel in the application
+		Boolean describing if the game is currently being played
+		Boolean describing if the game is currently running a process
+		Boolean describing if the game is currently paused
+		Boolean describing if the board should display the arrow tiles
+		Int containing time_left in the game
+		Int containing the total score of the game
+		Int containing the number of moves in the game
+		Internal class THBoardSizer, which provides generic get and set methods
+			so that a THGameManager function can return all data about board
+			for internal use
+
+	Methods:
+		setControlPanel(), initializes the THControlPanel member after the
+			instance has been created, required due to a dual dependancy
+		determineBoardAttributes(), determines overall board location and tile
+			size, returns a THBoardSizer
+		newBoard() creates a new board for the THBoard member
+		startGame(), creates a new THBoard and initializes variables for a
+			new game. Starts Timer callbacks
+		endGame(), stops timer callbacks, disables user manipulation of the
+			board. A THProcess that can be scheduled to be called after all
+			other processes currently being run complete
+		pause() and resume() pause or resume the game
+		isActive() returns whether the game can be interacted with by the user
+		hideBoard() returns whether the board is hidden or not
+		updateScore() adds points to the score and sends an updateScore() to
+			the THStatePanel member
+		incNumMoves() adds one to the number of valid moves and informs
+			THStatePanel to update its value
+		paintComponent(), tells the THBoard where to draw itself
+		Overloaded actionPerformed(), decrements the time remaining, updates
+			THStatePanel on time remaining and ends the game if time is up
+		Overloaded mouseClicked(), determines in which tile the mouse was
+			clicked, sends that tile location to THBoard for further
+			processing if the game is playable
+	Responsibilities:
+		Acts as the controller object for the application, interfaces model
+		(THBoard and members) to view. In charge of keeping track of game state,
+		updating the THStatePanel, and receiving user inputs in the form of
+		functions fromt the THControlPanel and mouse clicks from the user
+	Uses:
+		THControlPanel to be informed about user control manipulation, 
+		THStatePanel to update the current values of the game
+		THProcessScheduler to provide the timer for the game and to run some
+			methods at a later time period
+		THBoard to determine if a mouse click should be processed
+
+THProcessScheduler:
+	Instance Variables:
+		Pointer to a Timer
+		Pointer to an ArrayDeque of THProcess instances
+		Pointer to an ArrayDeque of Integer instances representing delays
+		int current delay
+	Methods:
+		Overloaded actionPerformed that reacts to Timer events
+		add() that adds a new THProcess and corresponding delay to the queues
+		addTimerListener() that adds a new listener to the Timer member
+		start() and halt() used to control the Timer member
+		isActive() returns whether processes are currently running or scheduled
+			to run
+	Responsibilities:
+		Managing the queue of THProcesses and associated delays, and running
+		these processes after delays until the queue is empty
+
+THProcess and subclasses:
+	Instance Variables:
+		Pointer to object on which a method will be called
+		<Optional arguments>Pointer to arguments required to call the method
+			on the object
+	Methods:
+		getObject() and setObject(), which get and set the object on which the
+			method will be called
+		run(), calls a specific method on the object using any arguments provided
+	Responsibilities:
+		Encapsulating a method call into an object to that the method can be called
+		at some point in the future.
+	Uses:
+		The object that the method will be called on
+	NOTES:
+		The naming convention used for the subclasses of THProcess is:
+			ObjectName:MethodName
+
+THBoard:
+	Instance Variables:
+		Pointer to 2D array of THTiles and two ints storing array size
+		Pointer to THGameManager
+		Pointer to THProcessScheduler
+		Pointer to the currently selected tile
+		
+	Methods:
+		tileSwap(), switches the positions of two tiles within array,
+			including relevant members of the tiles
+		replaceColumn(), recursively replaces THTiles within the board from
+			bottom to top for one column. Moves existing tiles above
+			used tiles down before creating new tiles above
+		replaceTiles(), calls replaceColumn() on all columns. A THProcess
+		validChain(), determines if a chain of tiles will be of length three
+			or more without altering the board or adding to the score
+		markChain(), "recursively" determines the path of tiles starting
+			with the tile that the user selected. Returns the total score
+			of the user's move. A THProcess
+		userMove(), manages the active tile and associated hilighting, checks
+			if the user move is valid, and generates intial THBoardMarkChain
+			if the move is valid.
+		invalidMove() causes the game to hilight the active tile in red
+			and add a THBoardRevalidate process to the scheduler. A THProcess
+		revalidate() returns the game to an active state after a valid move
+			occurs
+		draw(), draws board background and grid, and tells each THTile in
+			the array where to draw itself
+		getArraySize(), returns dimensions of the array of THTiles
+	Responsibilities:
+		Acts as the main model object for the application. Maintains order of
+		THTiles stored in array, recreates them as needed, and processed user
+		moves. Know how to draw itself and tells the array of THTiles where to
+		draw themselves
+	Uses:
+		THGameManager to tell it where to draw itself, and which tile a user
+		clicked on. THTileFactory to generate random tiles. Individual THTiles
+		to provide information about their place in the tile array. Graphics
+		object passed form THGameManager. THProcessScheduler to schedule methods
+		to be called later.
+
+THTileFactory:
+	Instance Variables: None
+	Methods:
+		createRandomTile(), static method that creates a new random tile
+			depending upon what random number was generated by Math.random()
+	Responsibilites:
+		Generating new tiles randomly
+
+THConstants:
+	Instance Variables:
+		Public static variables that act as constants for the application
+	Methods:
+		setBoardHeight() and setBoardWidth() allow for manipulation of board
+			dimensions
+	Responsibilities:
+		Providing access to constants by any object in any method. Updating
+		board size
+
+THTile:
+	Instance Variables:
+		Point array_position
+		Boolean observed, contains knowledge of whether the tile is included
+			in the chain of tiles created from the user input
+	Methods:
+		setArrayPosition(), sets the array_position of the tile to the
+			specified point
+		getArrayPosition(), returns the current array_position
+		setObserved(), sets the observed member to true
+		getObserved(), returns the value of observed
+		getNextTilePosition(), returns the point of the next tile in the
+			chain of tiles resulting from the user move. Abstract
+		draw(), draws the tile given its location and size. Abstract
+	Responsibilities:
+		Knowing where it is located in the array and whether it has been
+		used in the current user move sequence or not
+
+THLeftTile, THRightTile, THUpTile, THDownTile, THStopTile:
+	Inherits from THTile
+	Methods:
+		Implements the getNextTilePosition() and draw() abstract methods
+			in a manner specific to each type of THTile
+	Responsibilites:
+		Knowing how to draw itself and where the next tile in the user move
+		chain is relative to itself
+	Uses:
+		Graphics object passed down from THGameManager, THBoard to tell each
+		type of tile where to draw itself
+
+
+AGGREGATION HIERARCHY
+	Main
+		THStatePanel
+		THControlPanel
+			THDimSpinners
+		THGameManager
+			THBoard
+				THProcessManager
+					THProcess array
+				THTile array
+	THTileFactory
+	THConstants
+
+CLASS HIERARCHY
+	Main
+	THStatePanel
+	THControlPanel
+	THDimSpinners
+	THGameManager
+	THBoard
+	THProcessScheduler
+	THProcess
+		THGameManagerEndGame
+		THBoardMarkChain
+		THBoardReplaceTiles
+		THBoardRevalidate
+		THBoardInvalidMove
+	THTile
+		THLeftTile
+		THRightTile
+		THUpTile
+		THDownTile
+		THStopTile
+	THTileFactory
+	THConstants
+	
+		
+
+
+
+
+
+
+
+	

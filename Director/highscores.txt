@@ -1,3 +1,5 @@
+Tyler
+4180
 Caroline
 3930
 Tyler
@@ -8,8 +10,6 @@ Bartleby
 2230
 Kevin
 120
-void
-0
 void
 0
 void
